@@ -1,0 +1,26 @@
+[package]
+name = "boat-core-v2"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+byteorder = "1.4.3"
+config = "0.13.3"
+async-trait = "0.1.72"
+tokio = { version = "1.30.0", features = ["full"] }
+tokio-tungstenite = "*"
+futures = "0.3.28"
+serde = { version = "1.0.126", features = ["derive"] }
+serde_json = "1.0.64"
+lazy_static = "1.4.0"
+strum = "0.25"
+strum_macros = "0.25"
+socketcan = { git = "https://github.com/socketcan-rs/socketcan-rs.git", features = ["default", "tokio"]}
+systemstat = "0.2.3"
+log = "0.4.20"
+simple_logger = "4.2.0"
+num-traits = "0.2.16"
+num-derive = "0.4.0"
+serialport = "4.2.2"
