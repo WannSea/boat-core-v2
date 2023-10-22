@@ -24,3 +24,4 @@ simple_logger = "4.2.0"
 num-traits = "0.2.16"
 num-derive = "0.4.0"
 serialport = "4.2.2"
+wannsea_types = { git = "https://github.com/WannSea/type-lib.git" }

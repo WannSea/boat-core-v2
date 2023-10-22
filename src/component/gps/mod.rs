@@ -2,7 +2,7 @@ use std::str;
 
 use log::{error, trace};
 use systemstat::Duration;
-
+use wannsea_types::types::Metric;
 use crate::{messaging::{app_message::{MetricSender, MetricMessage}, serial_ext::read_line}, SETTINGS};
 
 pub struct GPS {
@@ -26,10 +26,10 @@ impl GPS {
         let ddd = lon[..3].parse::<f32>().unwrap();
         let lon_rest = lon[3..].parse::<f32>().unwrap();
 
-        sender.send(MetricMessage::now(format!("GPS_LAT"), dd + (lat_rest / 60.0))).unwrap();
-        sender.send(MetricMessage::now(format!("GPS_LON"), ddd + (lon_rest / 60.0))).unwrap();
-        sender.send(MetricMessage::now(format!("GPS_VELOCITY"), velocity.parse().unwrap())).unwrap();
-        sender.send(MetricMessage::now(format!("GPS_COURSE"), course.parse().unwrap())).unwrap();
+        sender.send(MetricMessage::now(Metric::GpsLat, dd + (lat_rest / 60.0))).unwrap();
+        sender.send(MetricMessage::now(Metric::GpsLon, ddd + (lon_rest / 60.0))).unwrap();
+        sender.send(MetricMessage::now(Metric::GpsSpeed, velocity.parse().unwrap())).unwrap();
+        sender.send(MetricMessage::now(Metric::GpsCourse, course.parse().unwrap())).unwrap();
     }
 
     fn process_pqxfi(line: &Vec<&str>, sender: MetricSender) {
@@ -38,10 +38,10 @@ impl GPS {
         let vert_uncertainty = line[8];
         let velo_uncertainty = line[9];
 
-        sender.send(MetricMessage::now(format!("GPS_ALTITUDE"), altitude.parse().unwrap())).unwrap();
-        sender.send(MetricMessage::now(format!("GPS_HOR_ERROR"), hor_error.parse().unwrap())).unwrap();
-        sender.send(MetricMessage::now(format!("GPS_VERT_UNCERTAINTY"), vert_uncertainty.parse().unwrap())).unwrap();
-        sender.send(MetricMessage::now(format!("GPS_VELO_UNCERTAINTY"), velo_uncertainty.parse().unwrap())).unwrap();
+        sender.send(MetricMessage::now(Metric::GpsAltitude, altitude.parse().unwrap())).unwrap();
+        sender.send(MetricMessage::now(Metric::GpsHorError, hor_error.parse().unwrap())).unwrap();
+        sender.send(MetricMessage::now(Metric::GpsVertUncertainty, vert_uncertainty.parse().unwrap())).unwrap();
+        sender.send(MetricMessage::now(Metric::GpsVeloUncertainty, velo_uncertainty.parse().unwrap())).unwrap();
     }
 
     pub async fn run_thread(metric_sender: MetricSender) {

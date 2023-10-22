@@ -1,6 +1,5 @@
 use futures::StreamExt;
 use log::info;
-use tokio::{sync::broadcast, net::TcpListener};
 use tokio_tungstenite::connect_async;
 
 use crate::{messaging::app_message::{MetricMessage, MetricSender}, SETTINGS};

@@ -10,9 +10,8 @@ use socketcan::EmbeddedFrame;
 use lazy_static::lazy_static;
 use tokio::{sync::broadcast, signal};
 use transport::web_socket_client::WebSocketClient;
-
 use crate::{messaging::app_message::MetricMessage, transport::web_socket_server::WebSocketServer, component::bms::BMS, can::{CAN, get_can_id}};
-
+use wannsea_types::types;
 lazy_static! {
     static ref SETTINGS: Config = Config::builder()
     .add_source(config::File::with_name("config.toml"))
@@ -49,7 +48,7 @@ async fn main() {
     tokio::spawn(async move {
         loop {
             let metric = metric_receiver.recv().await.unwrap();
-            debug!(target: "Metric", "{}: {}", metric.name, metric.value);
+            debug!(target: "Metric", "{}: {}", metric.metric, metric.value);
         }
     });
 
