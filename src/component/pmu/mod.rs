@@ -1,6 +1,7 @@
 use byteorder::{ReadBytesExt, BigEndian};
 use num_traits::FromPrimitive;
 use socketcan::EmbeddedFrame;
+use wannsea_types::types::Metric;
 
 use crate::{can::{CanReceiver, get_can_id, ids::CanIds}, messaging::app_message::{MetricSender, MetricMessage}, SETTINGS};
 
@@ -25,16 +26,16 @@ impl PMU {
             let data = frame.data();
             let id = get_can_id(frame.id());
             let result = match FromPrimitive::from_u32(id) {
-                Some(CanIds::CanIdApmuTemp) => metric_sender.send(MetricMessage::now(String::from("APMU_TEMP"), Self::parse_float(data))),
-                Some(CanIds::CanIdMpmuTemp) => metric_sender.send(MetricMessage::now(String::from("MPMU_TEMP"), Self::parse_float(data))),
-                Some(CanIds::CanIdMotorCurrent) => metric_sender.send(MetricMessage::now(String::from("MOTOR_I"), Self::parse_float(data))),
-                Some(CanIds::CanIdBattVoltage) => metric_sender.send(MetricMessage::now(String::from("PMU_BAT_V"), Self::parse_float(data))),
-                Some(CanIds::CanIdFan1Rpm) => metric_sender.send(MetricMessage::now(String::from("FAN_1_RPM"), Self::parse_float(data))),
-                Some(CanIds::CanIdFan2Rpm) => metric_sender.send(MetricMessage::now(String::from("FAN_2_RPM"), Self::parse_float(data))),
-                Some(CanIds::CanIdFan3Rpm) => metric_sender.send(MetricMessage::now(String::from("FAN_3_RPM"), Self::parse_float(data))),
-                Some(CanIds::CanIdFan4Rpm) => metric_sender.send(MetricMessage::now(String::from("FAN_4_RPM"), Self::parse_float(data))),
-                Some(CanIds::CanIdSolarPower) => metric_sender.send(MetricMessage::now(String::from("SOLAR_POWER"), Self::parse_float(data))),
-                Some(CanIds::CanIdSolarTemp) => metric_sender.send(MetricMessage::now(String::from("SOLAR_TEMP"), Self::parse_float(data))),
+                Some(CanIds::CanIdApmuTemp) => metric_sender.send(MetricMessage::now(Metric::ApmuTemp, Self::parse_float(data))),
+                Some(CanIds::CanIdMpmuTemp) => metric_sender.send(MetricMessage::now(Metric::MpmuTemp, Self::parse_float(data))),
+                Some(CanIds::CanIdMotorCurrent) => metric_sender.send(MetricMessage::now(Metric::MotorCurrent, Self::parse_float(data))),
+                Some(CanIds::CanIdBattVoltage) => metric_sender.send(MetricMessage::now(Metric::BatteryVoltage, Self::parse_float(data))),
+                Some(CanIds::CanIdFan1Rpm) => metric_sender.send(MetricMessage::now(Metric::Fan1, Self::parse_float(data))),
+                Some(CanIds::CanIdFan2Rpm) => metric_sender.send(MetricMessage::now(Metric::Fan2, Self::parse_float(data))),
+                Some(CanIds::CanIdFan3Rpm) => metric_sender.send(MetricMessage::now(Metric::Fan3, Self::parse_float(data))),
+                Some(CanIds::CanIdFan4Rpm) => metric_sender.send(MetricMessage::now(Metric::Fan4, Self::parse_float(data))),
+                Some(CanIds::CanIdSolarPower) => metric_sender.send(MetricMessage::now(Metric::SolarPower, Self::parse_float(data))),
+                Some(CanIds::CanIdSolarTemp) => metric_sender.send(MetricMessage::now(Metric::SolarTemp, Self::parse_float(data))),
                 _x => Ok(0)
             };
 

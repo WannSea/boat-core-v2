@@ -3,7 +3,7 @@ log = false
 interface = "vcan0"
 
 [system]
-interval = 100
+interval = 1000
 memory = true
 swap = true
 cpu_temp = false
@@ -16,7 +16,7 @@ address = "0.0.0.0:8080"
 
 [ws-client]
 enabled = true
-address = "ws://192.168.1.233:8765"
+address = "ws://localhost:8000"
 
 [pmu]
 enabled = true
