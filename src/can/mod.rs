@@ -1,6 +1,7 @@
 pub mod ids;
 
 use futures::StreamExt;
+use log::error;
 use tokio::sync::broadcast;
 use socketcan::{tokio::CanSocket, CanFrame, Id};
 
@@ -23,14 +24,26 @@ pub fn get_can_id(id: Id) -> u32 {
 
 impl CAN {
     async fn can_to_rx(interface: String, receiver_tx: CanReceiver) {
-        let mut sock_rx = CanSocket::open(&interface).expect("CAN Device not accessible");
+        let mut sock_rx = match CanSocket::open(&interface) {
+            Ok(port) => port,
+            Err(_err) => {
+                error!("CAN Device not accessible");
+                return;
+            }
+        };
         while let Some(Ok(frame)) = sock_rx.next().await {
             receiver_tx.send(frame).unwrap();
         }
     }
 
     async fn tx_to_can(interface: String, sender_rx: CanSender) {
-        let sock_tx = CanSocket::open(&interface).expect("CAN Device not accessible");
+        let sock_tx =  match CanSocket::open(&interface) {
+            Ok(port) => port,
+            Err(_err) => {
+                error!("CAN Device not accessible");
+                return;
+            }
+        };
         let mut rx = sender_rx.subscribe();
         loop {
             let msg = rx.recv().await.unwrap();
