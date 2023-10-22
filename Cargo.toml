@@ -23,7 +23,9 @@ log = "0.4.20"
 simple_logger = "4.2.0"
 num-traits = "0.2.16"
 num-derive = "0.4.0"
-serialport = "4.2.2"
+tokio-serial = "5.4.1"
 wannsea_types = { git = "https://github.com/WannSea/type-lib.git" }
 bincode = "1.3.3"
 crossbeam-queue = "0.3.8"
+tokio-util = { version = "0.7.9", features = ["codec"] }
+

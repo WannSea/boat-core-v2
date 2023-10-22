@@ -30,7 +30,7 @@ async fn main() {
     let ws_server = WebSocketServer::new(metric_sender.clone());
     ws_server.start();
 
-    let ws_client = WebSocketClient::new(metric_sender.clone());
+    let ws_client = WebSocketClient::new(&metric_sender);
     ws_client.start();
 
     let can = CAN::start();
@@ -45,13 +45,13 @@ async fn main() {
     });
 
     // Metric Logger
-    // tokio::spawn(async move {
-    //     loop { 
-    //         let metric = metric_receiver.recv().await.unwrap();
-    //         let metric_id: Metric = metric.id.try_into().unwrap();
-    //         debug!(target: "Metric", "{}: {}", metric_id.to_string(), metric.value);
-    //     }
-    // });
+    tokio::spawn(async move {
+        loop { 
+            let metric = metric_receiver.recv().await.unwrap();
+            let metric_id: Metric = metric.id.try_into().unwrap();
+            debug!(target: "Metric", "{}: {}", metric_id.to_string(), metric.value);
+        }
+    });
 
 
     let bms: BMS = BMS::new(can.sender.clone(), can.receiver.clone(), metric_sender.clone());

@@ -17,30 +17,33 @@ pub struct WebSocketClient {
 
 
 impl WebSocketClient {
-    pub fn new(metric_sender: MetricSender) -> Self {
-        WebSocketClient { metric_sender, cached_messages: MetricQueue::new() }
+    pub fn new(metric_sender: &MetricSender) -> Self {
+        WebSocketClient { metric_sender: metric_sender.clone(), cached_messages: MetricQueue::new(metric_sender.clone()) }
     }
 
-    async fn start_thread(cached_messages: MetricQueue<MetricMessage>) {
+    async fn start_thread(metric_queue: MetricQueue<MetricMessage>) {
         loop {        
             debug!("Trying to connect to ws...");
             let addr = SETTINGS.get::<String>("ws-client.address").unwrap().to_string();
-            let res = connect_async(addr).await;
+            let retry_timeout = SETTINGS.get::<u64>("ws-client.retry_timeout").unwrap();
+            let res = connect_async(&addr).await;
             if res.is_err() {
-                tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
+                debug!("Could not reach the WebSocket server at {}. Retrying in {} ms...", &addr, retry_timeout);
+                tokio::time::sleep(tokio::time::Duration::from_millis(retry_timeout)).await;
                 continue;
             }
             info!("WebSocket handshake has been successfully completed");
+
             let (mut write, _read) = res.unwrap().0.split();
             
             loop {
-                let msg: MetricMessage = cached_messages.pop().await;
+                let msg: MetricMessage = metric_queue.pop().await;
                 
                 let send_result = write.send(Message::Binary(msg.get_u8())).await;
                 match send_result {
                     Ok(_res) => {},
                     Err(_err) => {
-                        cached_messages.push(msg).await;
+                        metric_queue.push(msg).await;
                         break;
                     }
                 }
@@ -52,13 +55,13 @@ impl WebSocketClient {
         if SETTINGS.get::<bool>("ws-client.enabled").unwrap() {
             tokio::spawn(Self::start_thread( self.cached_messages.clone()));
         
-            let mut receiver = self.metric_sender.subscribe();
-            let sender = self.cached_messages.clone();
+            let metric_sender = self.metric_sender.clone();
+            let metric_queue = self.cached_messages.clone();
             tokio::spawn(async move {
+                let mut receiver = metric_sender.subscribe();
                 loop {
                     let msg = receiver.recv().await.unwrap();
-                    let stats = sender.stats().await;
-                    sender.push(msg).await;
+                    metric_queue.push(msg).await;
                 }
             });
         }

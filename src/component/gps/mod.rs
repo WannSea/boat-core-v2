@@ -1,9 +1,12 @@
 use std::str;
 
-use log::{error, trace};
+use futures::StreamExt;
+use log::{error, trace, debug};
 use systemstat::Duration;
+use tokio_serial::SerialPortBuilderExt;
+use tokio_util::codec::{LinesCodec, Decoder};
 use wannsea_types::types::Metric;
-use crate::{messaging::{app_message::{MetricSender, MetricMessage}, serial_ext::read_line}, SETTINGS};
+use crate::{messaging::{app_message::{MetricSender, MetricMessage}, serial_ext::{LineCodec}}, SETTINGS};
 
 pub struct GPS {
     metric_sender: MetricSender
@@ -14,11 +17,13 @@ impl GPS {
         GPS { metric_sender }
     }
 
-    fn process_gprmc(line: &Vec<&str>, sender: MetricSender) {
+    fn process_gprmc(line: &Vec<&str>, sender: &MetricSender) {
         let lat = line[3];
         let lon = line[5];
         let velocity = line[7];
         let course = line[8];
+
+        debug!("{:?}", line);
 
         let dd = lat[..2].parse::<f32>().unwrap();
         let lat_rest = lat[2..].parse::<f32>().unwrap();
@@ -32,7 +37,7 @@ impl GPS {
         sender.send(MetricMessage::now(Metric::GpsCourse, course.parse().unwrap())).unwrap();
     }
 
-    fn process_pqxfi(line: &Vec<&str>, sender: MetricSender) {
+    fn process_pqxfi(line: &Vec<&str>, sender: &MetricSender) {
         let altitude = line[6];
         let hor_error = line[7];
         let vert_uncertainty = line[8];
@@ -45,9 +50,9 @@ impl GPS {
     }
 
     pub async fn run_thread(metric_sender: MetricSender) {
-        let port = match serialport::new(SETTINGS.get::<String>("gps.port").unwrap(), 115_200)
-            .timeout(Duration::from_millis(10))
-            .open() {
+        let port = match tokio_serial::new(SETTINGS.get::<String>("gps.port").unwrap(), 115_200)
+            //.timeout(Duration::from_millis(10))
+            .open_native_async() {
                 Ok(port) => port,
                 Err(_e) => {
                     error!("Could not open GPS port. Exiting thread!");
@@ -55,15 +60,19 @@ impl GPS {
                 }
             };
 
-        let line = read_line(port);
-        trace!("Read GPS line {}", line);
-        
-        let input = line.split('*').collect::<Vec<&str>>()[0].split(',').collect::<Vec<&str>>();
-        match input[0] {
-            "$PQXFI" => Self::process_pqxfi(&input, metric_sender),
-            "$GPRMC" => Self::process_gprmc(&input, metric_sender),
-            _ => ()
+        let mut reader = LineCodec.framed(port);
+        while let Some(line_result) = reader.next().await {
+            let mut line = line_result.unwrap();
+            line.pop();
+            let input = line.split('*').collect::<Vec<&str>>()[0].split(',').collect::<Vec<&str>>();
+            match input[0] {
+                "$PQXFI" => Self::process_pqxfi(&input, &metric_sender),
+                "$GPRMC" => Self::process_gprmc(&input, &metric_sender),
+                _ => ()
+            }
         }
+        
+        
     }
 
     pub fn start(&self) {

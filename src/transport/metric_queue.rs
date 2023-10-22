@@ -4,6 +4,9 @@ use std::time::{UNIX_EPOCH, SystemTime};
 use log::debug;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use tokio::sync::{Mutex};
+use wannsea_types::types::Metric;
+
+use crate::messaging::app_message::{MetricSender, MetricMessage};
 
 #[derive(Clone)]
 pub struct MetricStats {
@@ -16,15 +19,17 @@ pub struct MetricStats {
 }
 
 pub struct MetricQueue<T> {
+    metric_sender: MetricSender,
     sender: UnboundedSender<T>,
     receiver: Arc<Mutex<UnboundedReceiver<T>>>,
     stats: Arc<RwLock<MetricStats>>
 }
 
 impl<T> MetricQueue<T> {
-    pub fn new() -> Self {
+    pub fn new(metric_sender: MetricSender) -> Self {
         let (sender, receiver) = unbounded_channel();
         Self {
+            metric_sender,
             sender: sender,
             receiver: Arc::new(Mutex::new(receiver)),
             stats: Arc::new(RwLock::new(MetricStats { len: 0, last_ts: 0, metrics_in_per_sec: 0.0, metrics_out_per_sec: 0.0, metrics_in: 0, metrics_out: 0 }))
@@ -39,7 +44,9 @@ impl<T> MetricQueue<T> {
             stats.metrics_in = 0;
             stats.metrics_out = 0;
             stats.last_ts = ts;
-            debug!("Q Size: {}    In/s: {}    Out/s: {}", stats.len, stats.metrics_in_per_sec, stats.metrics_out_per_sec);
+            self.metric_sender.send(MetricMessage::now(Metric::TxQueueCount, stats.len as f32));
+            self.metric_sender.send(MetricMessage::now(Metric::TxInPerSec, stats.metrics_in_per_sec as f32));
+            self.metric_sender.send(MetricMessage::now(Metric::TxOutPerSec, stats.metrics_out_per_sec as f32));
         }
     }
 
@@ -68,6 +75,7 @@ impl<T> MetricQueue<T> {
 impl<T> Clone for MetricQueue<T> {
     fn clone(&self) -> Self {
         Self {
+            metric_sender: self.metric_sender.clone(),
             sender: self.sender.clone(),
             receiver: self.receiver.clone(),
             stats: self.stats.clone()

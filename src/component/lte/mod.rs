@@ -1,7 +1,7 @@
 use log::{error, trace};
 use systemstat::Duration;
 
-use crate::{messaging::{app_message::MetricSender, serial_ext::read_line}, SETTINGS};
+use crate::{messaging::{app_message::MetricSender}, SETTINGS};
 
 pub struct LTE {
     metric_sender: MetricSender
@@ -13,7 +13,7 @@ impl LTE {
     }
 
     pub async fn run_thread(metric_sender: MetricSender) {
-        let port = match serialport::new(SETTINGS.get::<String>("lte.port").unwrap(), 115_200)
+        let port = match tokio_serial::new(SETTINGS.get::<String>("lte.port").unwrap(), 115_200)
             .timeout(Duration::from_millis(10))
             .open() {
                 Ok(port) => port,
@@ -23,12 +23,12 @@ impl LTE {
                 }
             };
 
-        let line = read_line(port);
-        trace!("Read LTE line {}", line);
+        // let line = read_line(port);
+        // trace!("Read LTE line {}", line);
     }
 
     pub fn start(&self) {
-        tokio::spawn(Self::run_thread(self.metric_sender.clone()));
+        //tokio::spawn(Self::run_thread(self.metric_sender.clone()));
     }
 }
 
