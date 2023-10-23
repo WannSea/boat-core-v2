@@ -27,4 +27,4 @@ enabled = true
 port = "/dev/pts/7"
 
 [lte]
-port = "/dev/ttyS0"
+port = "/dev/pts/4"

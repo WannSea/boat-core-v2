@@ -19,7 +19,7 @@ impl BmsReadThread {
     }
 
     fn send_metric(&self, name: String, data: f32) {
-         self.metric_sender.send(MetricMessage::now(name.parse().unwrap(), data)).expect("Could not report metric");
+         self.metric_sender.send(MetricMessage::now_f32(name.parse().unwrap(), data)).expect("Could not report metric");
     }
 
     async fn start_receiving(&self) {

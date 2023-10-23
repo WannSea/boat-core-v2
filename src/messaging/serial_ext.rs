@@ -1,6 +1,6 @@
 
-use std::{str, io::{BufReader, BufRead, self}};
-use tokio_util::{codec::{Decoder, Encoder}, bytes::BytesMut};
+use std::{str, io::{BufReader, self}};
+use tokio_util::{codec::{Decoder, Encoder}, bytes::{BytesMut, BufMut}};
 
 pub struct LineCodec;
 
@@ -24,7 +24,10 @@ impl Decoder for LineCodec {
 impl Encoder<String> for LineCodec {
     type Error = io::Error;
 
-    fn encode(&mut self, _item: String, _dst: &mut BytesMut) -> Result<(), Self::Error> {
+    fn encode(&mut self, item: String, dst: &mut BytesMut) -> Result<(), Self::Error> {
+        dst.reserve(item.len() + 1);
+        dst.put(item.as_bytes());
+        dst.put_u8(b'\n');
         Ok(())
     }
 }

@@ -1,9 +1,8 @@
 use std::sync::{Arc, RwLock};
 use std::time::{UNIX_EPOCH, SystemTime};
 
-use log::debug;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
-use tokio::sync::{Mutex};
+use tokio::sync::Mutex;
 use wannsea_types::types::Metric;
 
 use crate::messaging::app_message::{MetricSender, MetricMessage};
@@ -44,9 +43,9 @@ impl<T> MetricQueue<T> {
             stats.metrics_in = 0;
             stats.metrics_out = 0;
             stats.last_ts = ts;
-            self.metric_sender.send(MetricMessage::now(Metric::TxQueueCount, stats.len as f32));
-            self.metric_sender.send(MetricMessage::now(Metric::TxInPerSec, stats.metrics_in_per_sec as f32));
-            self.metric_sender.send(MetricMessage::now(Metric::TxOutPerSec, stats.metrics_out_per_sec as f32));
+            self.metric_sender.send(MetricMessage::now_f32(Metric::TxQueueCount, stats.len as f32)).unwrap();
+            self.metric_sender.send(MetricMessage::now_f32(Metric::TxInPerSec, stats.metrics_in_per_sec as f32)).unwrap();
+            self.metric_sender.send(MetricMessage::now_f32(Metric::TxOutPerSec, stats.metrics_out_per_sec as f32)).unwrap();
         }
     }
 
@@ -65,10 +64,6 @@ impl<T> MetricQueue<T> {
         stats.metrics_out += 1;
         self.calc_stats(stats);
         return result;
-    }
-
-    pub async fn stats(&self) -> MetricStats {
-        self.stats.read().unwrap().clone()
     }
 }
 

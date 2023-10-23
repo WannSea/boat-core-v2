@@ -1,9 +1,7 @@
 
-use std::{sync::{Mutex, Arc}, time::{UNIX_EPOCH, SystemTime}};
 
 use futures::{StreamExt, SinkExt};
 use log::{info, debug};
-use tokio::sync::RwLock;
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 
 use crate::{messaging::app_message::{MetricMessage, MetricSender}, SETTINGS};
@@ -38,7 +36,6 @@ impl WebSocketClient {
             
             loop {
                 let msg: MetricMessage = metric_queue.pop().await;
-                
                 let send_result = write.send(Message::Binary(msg.get_u8())).await;
                 match send_result {
                     Ok(_res) => {},
