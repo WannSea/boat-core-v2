@@ -140,8 +140,6 @@ dependencies = [
  "log",
  "num-derive",
  "num-traits",
- "serde",
- "serde_json",
  "simple_logger",
  "socketcan",
  "systemstat",
@@ -1430,12 +1428,8 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 
 [[package]]
 name = "wannsea_types"
-version = "0.1.83"
-source = "git+https://github.com/WannSea/type-lib.git#4dca764ddd65aa8bf89e0866405e95e63b8d18ae"
-dependencies = [
- "serde",
- "serde_json",
-]
+version = "0.1.89"
+source = "git+https://github.com/WannSea/type-lib.git#8c82aa6872bd3c9ae9672ef14b376fca09a3476a"
 
 [[package]]
 name = "wasi"

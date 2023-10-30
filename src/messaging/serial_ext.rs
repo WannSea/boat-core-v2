@@ -1,5 +1,5 @@
 
-use std::{str, io::{BufReader, self}};
+use std::{str, io};
 use tokio_util::{codec::{Decoder, Encoder}, bytes::{BytesMut, BufMut}};
 
 pub struct LineCodec;

@@ -1,11 +1,10 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use serde::{Serialize, Deserialize};
 use tokio::sync::broadcast;
 use wannsea_types::types::Metric;
 
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug)]
 pub struct MetricMessage {
     pub id: Metric,
     pub ts: u128,
@@ -31,6 +30,10 @@ impl MetricMessage {
         out_vec.append(self.ts.to_ne_bytes().to_vec().as_mut());
         out_vec.append(self.value.to_vec().as_mut());
         return out_vec;
+    }
+
+    pub fn get_json_repr(&self) -> String {
+        return format!("{{ id: {}, value: {}, ts: {} }}", self.id.to_string(), self.id.transform_metric_val(self.value.clone()), self.ts);
     }
 }
 

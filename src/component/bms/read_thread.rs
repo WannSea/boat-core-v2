@@ -1,5 +1,6 @@
 use byteorder::{BigEndian, ReadBytesExt};
 use socketcan::EmbeddedFrame;
+use wannsea_types::types::Metric;
 
 use crate::{can::{CanReceiver, get_can_id}, messaging::app_message::{MetricSender, MetricMessage}};
 
@@ -18,9 +19,13 @@ impl BmsReadThread {
         thread.start_receiving().await;
     }
 
-    fn send_metric(&self, name: String, data: f32) {
-         self.metric_sender.send(MetricMessage::now_f32(name.parse().unwrap(), data)).expect("Could not report metric");
+    fn send_metric(&self, metric: Metric, data: f32) {
+         self.metric_sender.send(MetricMessage::now_f32(metric, data)).expect("Could not report metric");
     }
+
+    fn send_metric_dynamic_name(&self, name: String, data: f32) {
+        self.send_metric(name.parse().unwrap(), data);
+   }
 
     async fn start_receiving(&self) {
         let mut receiver = self.can_receiver.subscribe();
@@ -56,27 +61,27 @@ impl BmsReadThread {
                 for idx in 0..4 {
                     let data_start_idx = idx * 4;
                     let data = (&data[data_start_idx..(data_start_idx + 4)]).read_u32::<BigEndian>().unwrap();
-                    self.send_metric(format!("BAT_{}_V_{}", bms_id, base_index + idx), data as f32);
+                    self.send_metric_dynamic_name(format!("BAT_{}_V_{}", bms_id, base_index + idx), data as f32);
                 }
             }
             else if bms_requested_fun == BmsFunction::BmsIdV21_24 as u32 {
-                self.send_metric(format!("Bat{}AhDischarged", bms_id), (&data[0..2]).read_u16::<BigEndian>().unwrap() as f32);
+                self.send_metric_dynamic_name(format!("Bat{}AhDischarged", bms_id), (&data[0..2]).read_u16::<BigEndian>().unwrap() as f32);
 
-                self.send_metric(format!("Bat{}RemainingCapacity", bms_id),  (&data[2..4]).read_u16::<BigEndian>().unwrap() as f32);
-                 self.send_metric(format!("Bat{}Soh", bms_id), data[4] as f32);
-                 self.send_metric(format!("Bat{}Soc", bms_id),  data[5] as f32);
-                 self.send_metric(format!("Bat{}IBatI", bms_id), ((&data[6..8]).read_u16::<BigEndian>().unwrap() as f32) * 0.1);
+                self.send_metric_dynamic_name(format!("Bat{}RemainingCapacity", bms_id),  (&data[2..4]).read_u16::<BigEndian>().unwrap() as f32);
+                self.send_metric_dynamic_name(format!("Bat{}Soh", bms_id), data[4] as f32);
+                self.send_metric_dynamic_name(format!("Bat{}Soc", bms_id),  data[5] as f32);
+                self.send_metric_dynamic_name(format!("Bat{}IBatI", bms_id), ((&data[6..8]).read_u16::<BigEndian>().unwrap() as f32) * 0.1);
             }
             else if bms_requested_fun == BmsFunction::BmsIdT01_06 as u32 {
-                 self.send_metric(format!("Bat{}T0", bms_id), data[0] as f32 - 40.0);
-                 self.send_metric(format!("Bat{}T1", bms_id), data[1] as f32 - 40.0);
-                 self.send_metric(format!("Bat{}T2", bms_id), data[2] as f32 - 40.0);
+                self.send_metric_dynamic_name(format!("Bat{}T0", bms_id), data[0] as f32 - 40.0);
+                self.send_metric_dynamic_name(format!("Bat{}T1", bms_id), data[1] as f32 - 40.0);
+                self.send_metric_dynamic_name(format!("Bat{}T2", bms_id), data[2] as f32 - 40.0);
             }
             else if bms_requested_fun == BmsFunction::BmsIdInternalStatus1 as u32 {
-                 self.send_metric(format!("Bat{}MajorAlert1", bms_id), (&data[0..1]).read_u8().unwrap() as f32);
-                 self.send_metric(format!("Bat{}MajorAlert2", bms_id), (&data[1..2]).read_u8().unwrap() as f32);
-                 self.send_metric(format!("Bat{}MajorAlert3", bms_id), (&data[2..3]).read_u8().unwrap() as f32);
-                 self.send_metric(format!("Bat{}MinorAlert", bms_id), (&data[3..4]).read_u8().unwrap() as f32);
+                self.send_metric_dynamic_name(format!("Bat{}MajorAlert1", bms_id), (&data[0..1]).read_u8().unwrap() as f32);
+                self.send_metric_dynamic_name(format!("Bat{}MajorAlert2", bms_id), (&data[1..2]).read_u8().unwrap() as f32);
+                self.send_metric_dynamic_name(format!("Bat{}MajorAlert3", bms_id), (&data[2..3]).read_u8().unwrap() as f32);
+                self.send_metric_dynamic_name(format!("Bat{}MinorAlert", bms_id), (&data[3..4]).read_u8().unwrap() as f32);
             }
         }
     }
@@ -85,33 +90,33 @@ impl BmsReadThread {
         let requested_function = id & 0x0FFF;
 
         if requested_function == BmsFunction::EmsControl as u32 {
-             self.send_metric(format!("MaxBatteryDischargeCurrent"), (&data[0 .. 2]).read_u16::<BigEndian>().unwrap() as f32);
-             self.send_metric(format!("MaxBatteryRechargeCurrent"), (&data[2 .. 4]).read_u16::<BigEndian>().unwrap() as f32);
+            self.send_metric(Metric::MaxBatteryDischargeCurrent, (&data[0 .. 2]).read_u16::<BigEndian>().unwrap() as f32);
+            self.send_metric(Metric::MaxBatteryRechargeCurrent, (&data[2 .. 4]).read_u16::<BigEndian>().unwrap() as f32);
         }
         else if requested_function == BmsFunction::GlobalStatus3 as u32 {
-             self.send_metric(format!("GlobalSoc"), data[0] as f32);
-             self.send_metric(format!("IdGlobalSoc"), (data[1] >> 4) as f32);
-             self.send_metric(format!("GlobalIbmsAlarmState"), (data[2] & 0x03) as f32);
-             self.send_metric(format!("NumberOfConnectedBms"), (data[2] >> 4) as f32);
-             self.send_metric(format!("PowerbusInformation"), data[3] as f32);
+            self.send_metric(Metric::GlobalSoc, data[0] as f32);
+            self.send_metric(Metric::IdGlobalSoc, (data[1] >> 4) as f32);
+            self.send_metric(Metric::GlobalIbmsAlarmState, (data[2] & 0x03) as f32);
+            self.send_metric(Metric::NumberOfConnectedBms, (data[2] >> 4) as f32);
+            self.send_metric(Metric::PowerbusInformation, data[3] as f32);
         }
         else if requested_function == BmsFunction::GlobalStatus4 as u32 {
-             self.send_metric(format!("BatTmin"), data[0] as f32 - 40.0);
-             self.send_metric(format!("BatTmax"), data[1] as f32 - 40.0);
-             self.send_metric(format!("BatIdTmin"), (data[2] & 0x0F) as f32);
-             self.send_metric(format!("BatIdTmax"), (data[2] >> 4) as f32);
+            self.send_metric(Metric::BatTmin, data[0] as f32 - 40.0);
+            self.send_metric(Metric::BatTmax, data[1] as f32 - 40.0);
+            self.send_metric(Metric::BatIdTmin, (data[2] & 0x0F) as f32);
+            self.send_metric(Metric::BatIdTmax, (data[2] >> 4) as f32);
 
-             self.send_metric(format!("BatVmin"), (&data[3 .. 5]).read_u16::<BigEndian>().unwrap() as f32 * 0.01);
-             self.send_metric(format!("BatVmax"), (&data[5 .. 7]).read_u16::<BigEndian>().unwrap() as f32 * 0.01);
-             self.send_metric(format!("BatIdVmin"), (data[7] & 0x0F) as f32);
-             self.send_metric(format!("BatIdVmax"), (data[7] >> 4) as f32);
+            self.send_metric(Metric::BatVmin, (&data[3 .. 5]).read_u16::<BigEndian>().unwrap() as f32 * 0.01);
+            self.send_metric(Metric::BatVmax, (&data[5 .. 7]).read_u16::<BigEndian>().unwrap() as f32 * 0.01);
+            self.send_metric(Metric::BatIdVmin, (data[7] & 0x0F) as f32);
+            self.send_metric(Metric::BatIdVmax, (data[7] >> 4) as f32);
         }
         else if requested_function == BmsFunction::GlobalStatus5 as u32 {
-             self.send_metric(format!("GlobalBatCurrent"), (&data[0..2]).read_i16::<BigEndian>().unwrap() as f32 * 0.01);
-             self.send_metric(format!("GlobalCellMin"), (&data[2..4]).read_i16::<BigEndian>().unwrap() as f32 * 1e-3);
-             self.send_metric(format!("GlobalCellMax"), (&data[4..6]).read_i16::<BigEndian>().unwrap() as f32 * 1e-3);
-             self.send_metric(format!("GlobalCellMinId"), (data[6] & 0x0F) as f32);
-             self.send_metric(format!("GlobalCellMaxId"), (data[6] >> 4) as f32);
+            self.send_metric(Metric::GlobalBatCurrent, (&data[0..2]).read_i16::<BigEndian>().unwrap() as f32 * 0.01);
+            self.send_metric(Metric::GlobalCellMin, (&data[2..4]).read_i16::<BigEndian>().unwrap() as f32 * 1e-3);
+            self.send_metric(Metric::GlobalCellMax, (&data[4..6]).read_i16::<BigEndian>().unwrap() as f32 * 1e-3);
+            self.send_metric(Metric::GlobalCellMinId, (data[6] & 0x0F) as f32);
+            self.send_metric(Metric::GlobalCellMaxId, (data[6] >> 4) as f32);
         }
     }
 }
