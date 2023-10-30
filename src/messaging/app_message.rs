@@ -20,7 +20,7 @@ impl MetricMessage {
     pub fn get_u8_repr(&self) -> Vec<u8> {
         let mut out_vec = Vec::new();
         out_vec.push(self.id.clone() as u8);
-        out_vec.append(self.ts.to_ne_bytes().to_vec().as_mut());
+        out_vec.append(self.ts.to_le_bytes().to_vec().as_mut());
         out_vec.append(self.value.to_vec().as_mut());
         return out_vec;
     }
