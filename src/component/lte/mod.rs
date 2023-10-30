@@ -44,7 +44,7 @@ impl LTE {
                         let cmd_result = cmd[1].trim().split(',').collect::<Vec<&str>>();
                         let network_mode = cmd_result[0];
                         debug!("Network mode: {}", network_mode);
-                        metric_sender.send(MetricMessage::now_str(Metric::CellularNetworkMode, network_mode)).unwrap();
+                        metric_sender.send(MetricMessage::now(Metric::CellularNetworkMode, Metric::val_str(network_mode))).unwrap();
 
                     },
                     // +CSQ: 22,0
@@ -52,7 +52,7 @@ impl LTE {
                         let cmd_result = cmd[1].trim().split(',').collect::<Vec<&str>>();
                         let signal_quality = cmd_result[0].parse::<f32>().unwrap();
                         debug!("Signal Quality: {}", signal_quality);
-                        metric_sender.send(MetricMessage::now_f32(Metric::CellularSignalQuality, signal_quality)).unwrap();
+                        metric_sender.send(MetricMessage::now(Metric::CellularSignalQuality, Metric::val_f32(signal_quality))).unwrap();
                     },
                     d => warn!("Unknown cmd {}", d)
                 }

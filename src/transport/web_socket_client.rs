@@ -36,7 +36,7 @@ impl WebSocketClient {
             
             loop {
                 let msg: MetricMessage = metric_queue.pop().await;
-                let send_result = write.send(Message::Binary(msg.get_u8())).await;
+                let send_result = write.send(Message::Binary(msg.get_u8_repr())).await;
                 match send_result {
                     Ok(_res) => {},
                     Err(_err) => {

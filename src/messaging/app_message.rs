@@ -11,20 +11,13 @@ pub struct MetricMessage {
     pub value: Vec<u8>
 }
 
+
 impl MetricMessage {
     pub fn now(id: Metric, value: Vec<u8>) -> Self {
-        MetricMessage { id: id, value, ts: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() }
+        MetricMessage { id, value, ts: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() }
     }
 
-    pub fn now_f32(id: Metric, value: f32) -> Self {
-        Self::now(id, value.to_ne_bytes().to_vec())
-    }
-
-    pub fn now_str(id: Metric, value: &str) -> Self {
-        Self::now(id, value.as_bytes().to_vec())
-    }
-
-    pub fn get_u8(&self) -> Vec<u8> {
+    pub fn get_u8_repr(&self) -> Vec<u8> {
         let mut out_vec = Vec::new();
         out_vec.push(self.id.clone() as u8);
         out_vec.append(self.ts.to_ne_bytes().to_vec().as_mut());
@@ -33,7 +26,7 @@ impl MetricMessage {
     }
 
     pub fn get_json_repr(&self) -> String {
-        return format!("{{ id: {}, value: {}, ts: {} }}", self.id.to_string(), self.id.transform_metric_val(self.value.clone()), self.ts);
+        return format!("{{ id: {}, value: {}, ts: {} }}", self.id.to_string(), self.id.get_val_as_json(self.value.clone()), self.ts);
     }
 }
 

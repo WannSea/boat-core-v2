@@ -20,7 +20,7 @@ impl BmsReadThread {
     }
 
     fn send_metric(&self, metric: Metric, data: f32) {
-         self.metric_sender.send(MetricMessage::now_f32(metric, data)).expect("Could not report metric");
+         self.metric_sender.send(MetricMessage::now(metric, Metric::val_f32(data))).expect("Could not report metric");
     }
 
     fn send_metric_dynamic_name(&self, name: String, data: f32) {

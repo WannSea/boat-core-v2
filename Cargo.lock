@@ -1428,8 +1428,8 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 
 [[package]]
 name = "wannsea_types"
-version = "0.1.89"
-source = "git+https://github.com/WannSea/type-lib.git#8c82aa6872bd3c9ae9672ef14b376fca09a3476a"
+version = "0.1.92"
+source = "git+https://github.com/WannSea/type-lib.git#b9719a26f43aced6d8cedaf186a2b705bf35ec20"
 
 [[package]]
 name = "wasi"
