@@ -1,4 +1,3 @@
-use byteorder::{ReadBytesExt, BigEndian};
 use num_traits::FromPrimitive;
 use socketcan::EmbeddedFrame;
 use wannsea_types::types::Metric;
