@@ -9,7 +9,7 @@ swap = true
 cpu_temp = false
 cpu_usage = true
 uptime = true
-network = true
+network = false
 network_if = "enp4s0"
 
 [ws-server]

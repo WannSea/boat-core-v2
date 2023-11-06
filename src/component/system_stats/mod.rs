@@ -44,7 +44,7 @@ impl SystemStats {
                     Ok(stats) => {
                        debug!("{}", stats.tx_bytes.as_u64());
                     },
-                    Err(x) => error!("Swap: error: {}", x)
+                    Err(x) => error!("Network: error: {}", x)
                 }
             }
 

@@ -122,7 +122,6 @@ name = "boat-core-v2"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "byteorder",
  "config",
  "crossbeam-queue",
  "futures",
@@ -132,6 +131,8 @@ dependencies = [
  "num-traits",
  "simple_logger",
  "socketcan",
+ "strum",
+ "strum_macros",
  "systemstat",
  "tokio",
  "tokio-serial",
@@ -1189,8 +1190,9 @@ dependencies = [
 
 [[package]]
 name = "socketcan"
-version = "3.2.0"
-source = "git+https://github.com/socketcan-rs/socketcan-rs.git#c6ee6917c7c2a2440a1ea339676fdac70fd4a40f"
+version = "3.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "175eef9db7dedf6c5d3f5926fed7471633a9b9929a6ee086bdf436ee954532b6"
 dependencies = [
  "bitflags 1.3.2",
  "byte_conv",
@@ -1510,7 +1512,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "wannsea_types"
 version = "0.1.101"
-source = "git+https://github.com/WannSea/type-lib.git#65582d6c51c3df568124dd59e159f42fa9af34a0"
+source = "git+ssh://git@github.com/WannSea/type-lib.git#0b56faeb67b08ebabfafc0efaf7a61192d08ce98"
 dependencies = [
  "codegen",
  "serde",
