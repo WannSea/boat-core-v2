@@ -2,7 +2,7 @@ use log::{trace, warn};
 use socketcan::EmbeddedFrame;
 use wannsea_types::{MetricId, MetricMessage};
 
-use crate::{can::{CanReceiver, get_can_id}, messaging::MetricSender};
+use crate::{can::{CanReceiver, get_can_id}, helper::MetricSender};
 
 use super::{structs::{BmsFunction, BatteryPack}, BatteryPackNotifier};
 

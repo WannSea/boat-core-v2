@@ -5,7 +5,7 @@ use log::{error, debug};
 use tokio_serial::SerialPortBuilderExt;
 use tokio_util::codec::Decoder;
 use wannsea_types::{MetricMessage, MetricId};
-use crate::{messaging::{serial_ext::LineCodec, MetricSender}, SETTINGS};
+use crate::{helper::{serial_ext::LineCodec, MetricSender}, SETTINGS};
 
 pub struct GPS {
     metric_sender: MetricSender

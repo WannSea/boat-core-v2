@@ -2,7 +2,7 @@ use log::{error, debug};
 use systemstat::{saturating_sub_bytes, Duration, System, Platform};
 use wannsea_types::{MetricMessage, MetricId};
 
-use crate::{messaging::MetricSender, SETTINGS};
+use crate::{helper::MetricSender, SETTINGS};
 
 pub struct SystemStats {
     metric_sender: MetricSender

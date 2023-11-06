@@ -2,7 +2,7 @@ use num_traits::FromPrimitive;
 use socketcan::EmbeddedFrame;
 use wannsea_types::{MetricId, MetricMessage};
 
-use crate::{can::{CanReceiver, get_can_id, ids::CanIds}, messaging::MetricSender, SETTINGS};
+use crate::{can::{CanReceiver, get_can_id, ids::CanIds}, helper::MetricSender, SETTINGS};
 
 pub struct PMU {
     can_receiver: CanReceiver,

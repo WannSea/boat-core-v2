@@ -4,7 +4,7 @@ mod main_thread;
 
 use tokio::sync::mpsc;
 
-use crate::{can::{CanSender, CanReceiver}, messaging::MetricSender};
+use crate::{can::{CanSender, CanReceiver}, helper::MetricSender};
 
 use self::{main_thread::BmsMainThread, read_thread::BmsReadThread, structs::BatteryPack};
 

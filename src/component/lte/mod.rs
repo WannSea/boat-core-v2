@@ -6,7 +6,7 @@ use tokio_serial::SerialPortBuilderExt;
 use tokio_util::codec::Decoder;
 use wannsea_types::{MetricMessage, MetricId};
 
-use crate::{messaging::{MetricSender, serial_ext::LineCodec}, SETTINGS};
+use crate::{helper::{MetricSender, serial_ext::LineCodec}, SETTINGS};
 
 pub struct LTE {
     metric_sender: MetricSender

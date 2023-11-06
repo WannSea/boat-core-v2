@@ -6,7 +6,7 @@ use tokio::sync::Mutex;
 use wannsea_types::MetricMessage;
 use wannsea_types::MetricId;
 
-use crate::messaging::MetricSender;
+use crate::helper::MetricSender;
 
 #[derive(Clone)]
 pub struct MetricStats {

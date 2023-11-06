@@ -5,7 +5,7 @@ use log::{info, debug};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
 use wannsea_types::MetricMessage;
 
-use crate::{messaging::MetricSender, SETTINGS};
+use crate::{helper::MetricSender, SETTINGS};
 
 use super::metric_queue::MetricQueue;
 
