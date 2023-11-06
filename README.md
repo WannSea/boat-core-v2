@@ -3,12 +3,12 @@ This is a Rust-rewrite of the original [boat-core](https://github.com/WannSea/bo
 
 In order to reduce complexity this project focuses on a few main features:
 - Metric Collection, Interpretation of every component present on the boat:
-    - Batteries
-    - GPS
-    - LTE
-    - MPMU
-    - APMU
-    - System Stats
+    - Batteries (via CAN)
+    - GPS (via Serial)
+    - LTE (via Serial)
+    - MPMU (via CAN)
+    - APMU (via CAN)
+    - System Stats (local)
 - Calculation of computed Metrics:
     - GPS/IMU Fusion
 - Exposing these metrics via various interfaces to other applications:
