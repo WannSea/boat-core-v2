@@ -4,9 +4,9 @@ use systemstat::Duration;
 use tokio::time::sleep;
 use tokio_serial::SerialPortBuilderExt;
 use tokio_util::codec::Decoder;
-use wannsea_types::types::Metric;
+use wannsea_types::{MetricMessage, MetricId};
 
-use crate::{messaging::{app_message::{MetricSender, MetricMessage}, serial_ext::LineCodec}, SETTINGS};
+use crate::{messaging::{MetricSender, serial_ext::LineCodec}, SETTINGS};
 
 pub struct LTE {
     metric_sender: MetricSender
@@ -44,7 +44,7 @@ impl LTE {
                         let cmd_result = cmd[1].trim().split(',').collect::<Vec<&str>>();
                         let network_mode = cmd_result[0];
                         debug!("Network mode: {}", network_mode);
-                        metric_sender.send(MetricMessage::now(Metric::CellularNetworkMode, Metric::val_str(network_mode))).unwrap();
+                        metric_sender.send(MetricMessage::now(MetricId::CELLULAR_NETWORK_MODE, network_mode.to_string().into())).unwrap();
 
                     },
                     // +CSQ: 22,0
@@ -52,7 +52,7 @@ impl LTE {
                         let cmd_result = cmd[1].trim().split(',').collect::<Vec<&str>>();
                         let signal_quality = cmd_result[0].parse::<f32>().unwrap();
                         debug!("Signal Quality: {}", signal_quality);
-                        metric_sender.send(MetricMessage::now(Metric::CellularSignalQuality, Metric::val_f32(signal_quality))).unwrap();
+                        metric_sender.send(MetricMessage::now(MetricId::CELLULAR_SIGNAL_QUALITY, signal_quality.into())).unwrap();
                     },
                     d => warn!("Unknown cmd {}", d)
                 }

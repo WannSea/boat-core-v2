@@ -2,7 +2,7 @@ mod structs;
 mod read_thread;
 mod main_thread;
 use std::{sync::{Arc, RwLock}, collections::HashMap};
-use crate::{can::{CanSender, CanReceiver}, messaging::app_message::MetricSender};
+use crate::{can::{CanSender, CanReceiver}, messaging::MetricSender};
 
 use self::{structs::BatteryPack, main_thread::BmsMainThread, read_thread::BmsReadThread};
 

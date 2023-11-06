@@ -4,8 +4,8 @@ use futures::StreamExt;
 use log::{error, debug};
 use tokio_serial::SerialPortBuilderExt;
 use tokio_util::codec::Decoder;
-use wannsea_types::types::Metric;
-use crate::{messaging::{app_message::{MetricSender, MetricMessage}, serial_ext::LineCodec}, SETTINGS};
+use wannsea_types::{MetricMessage, MetricId};
+use crate::{messaging::{serial_ext::LineCodec, MetricSender}, SETTINGS};
 
 pub struct GPS {
     metric_sender: MetricSender
@@ -30,10 +30,10 @@ impl GPS {
         let ddd = lon[..3].parse::<f32>().unwrap();
         let lon_rest = lon[3..].parse::<f32>().unwrap();
 
-        sender.send(MetricMessage::now(Metric::GpsLat, Metric::val_f32(dd + (lat_rest / 60.0)))).unwrap();
-        sender.send(MetricMessage::now(Metric::GpsLon, Metric::val_f32(ddd + (lon_rest / 60.0)))).unwrap();
-        sender.send(MetricMessage::now(Metric::GpsSpeed, Metric::val_f32(velocity.parse().unwrap()))).unwrap();
-        sender.send(MetricMessage::now(Metric::GpsCourse, Metric::val_f32(course.parse().unwrap()))).unwrap();
+        sender.send(MetricMessage::now(MetricId::GPS_LAT, (dd + (lat_rest / 60.0)).into())).unwrap();
+        sender.send(MetricMessage::now(MetricId::GPS_LON, (ddd + (lon_rest / 60.0)).into())).unwrap();
+        sender.send(MetricMessage::now(MetricId::GPS_SPEED, (velocity.parse::<f32>().unwrap()).into())).unwrap();
+        sender.send(MetricMessage::now(MetricId::GPS_COURSE, (course.parse::<f32>().unwrap()).into())).unwrap();
     }
 
     fn process_pqxfi(line: &Vec<&str>, sender: &MetricSender) {
@@ -42,10 +42,10 @@ impl GPS {
         let vert_uncertainty = line[8];
         let velo_uncertainty = line[9];
 
-        sender.send(MetricMessage::now(Metric::GpsAltitude, Metric::val_f32(altitude.parse().unwrap()))).unwrap();
-        sender.send(MetricMessage::now(Metric::GpsHorError, Metric::val_f32(hor_error.parse().unwrap()))).unwrap();
-        sender.send(MetricMessage::now(Metric::GpsVertUncertainty, Metric::val_f32(vert_uncertainty.parse().unwrap()))).unwrap();
-        sender.send(MetricMessage::now(Metric::GpsVeloUncertainty, Metric::val_f32(velo_uncertainty.parse().unwrap()))).unwrap();
+        sender.send(MetricMessage::now(MetricId::GPS_ALTITUDE, (altitude.parse::<f32>().unwrap()).into())).unwrap();
+        sender.send(MetricMessage::now(MetricId::GPS_HOR_ERROR, (hor_error.parse::<f32>().unwrap()).into())).unwrap();
+        sender.send(MetricMessage::now(MetricId::GPS_VERT_UNCERTAINTY, (vert_uncertainty.parse::<f32>().unwrap()).into())).unwrap();
+        sender.send(MetricMessage::now(MetricId::GPS_VELO_UNCERTAINTY,  (velo_uncertainty.parse::<f32>().unwrap()).into())).unwrap();
     }
 
     pub async fn run_thread(metric_sender: MetricSender) {

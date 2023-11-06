@@ -3,8 +3,9 @@
 use futures::{StreamExt, SinkExt};
 use log::{info, debug};
 use tokio_tungstenite::{connect_async, tungstenite::Message};
+use wannsea_types::MetricMessage;
 
-use crate::{messaging::app_message::{MetricMessage, MetricSender}, SETTINGS};
+use crate::{messaging::MetricSender, SETTINGS};
 
 use super::metric_queue::MetricQueue;
 
@@ -36,7 +37,7 @@ impl WebSocketClient {
             
             loop {
                 let msg: MetricMessage = metric_queue.pop().await;
-                let send_result = write.send(Message::Binary(msg.get_u8_repr())).await;
+                let send_result = write.send(Message::Binary(msg.clone().into())).await;
                 match send_result {
                     Ok(_res) => {},
                     Err(_err) => {

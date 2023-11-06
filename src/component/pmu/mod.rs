@@ -1,8 +1,8 @@
 use num_traits::FromPrimitive;
 use socketcan::EmbeddedFrame;
-use wannsea_types::types::Metric;
+use wannsea_types::{MetricId, MetricMessage};
 
-use crate::{can::{CanReceiver, get_can_id, ids::CanIds}, messaging::app_message::{MetricSender, MetricMessage}, SETTINGS};
+use crate::{can::{CanReceiver, get_can_id, ids::CanIds}, messaging::MetricSender, SETTINGS};
 
 pub struct PMU {
     can_receiver: CanReceiver,
@@ -21,16 +21,16 @@ impl PMU {
             let data = frame.data().to_vec();
             let id = get_can_id(frame.id());
             let result = match FromPrimitive::from_u32(id) {
-                Some(CanIds::CanIdApmuTemp) => metric_sender.send(MetricMessage::now(Metric::ApmuTemp, data)),
-                Some(CanIds::CanIdMpmuTemp) => metric_sender.send(MetricMessage::now(Metric::MpmuTemp, data)),
-                Some(CanIds::CanIdMotorCurrent) => metric_sender.send(MetricMessage::now(Metric::MotorCurrent, data)),
-                Some(CanIds::CanIdBattVoltage) => metric_sender.send(MetricMessage::now(Metric::BatteryVoltage, data)),
-                Some(CanIds::CanIdFan1Rpm) => metric_sender.send(MetricMessage::now(Metric::Fan1, data)),
-                Some(CanIds::CanIdFan2Rpm) => metric_sender.send(MetricMessage::now(Metric::Fan2, data)),
-                Some(CanIds::CanIdFan3Rpm) => metric_sender.send(MetricMessage::now(Metric::Fan3, data)),
-                Some(CanIds::CanIdFan4Rpm) => metric_sender.send(MetricMessage::now(Metric::Fan4, data)),
-                Some(CanIds::CanIdSolarPower) => metric_sender.send(MetricMessage::now(Metric::SolarPower, data)),
-                Some(CanIds::CanIdSolarTemp) => metric_sender.send(MetricMessage::now(Metric::SolarTemp, data)),
+                Some(CanIds::CanIdApmuTemp) => metric_sender.send(MetricMessage::now(MetricId::APMU_TEMP, data.into())),
+                Some(CanIds::CanIdMpmuTemp) => metric_sender.send(MetricMessage::now(MetricId::MPMU_TEMP, data.into())),
+                Some(CanIds::CanIdMotorCurrent) => metric_sender.send(MetricMessage::now(MetricId::MOTOR_CURRENT, data.into())),
+                Some(CanIds::CanIdBattVoltage) => metric_sender.send(MetricMessage::now(MetricId::BATTERY_VOLTAGE, data.into())),
+                Some(CanIds::CanIdFan1Rpm) => metric_sender.send(MetricMessage::now(MetricId::FAN_1, data.into())),
+                Some(CanIds::CanIdFan2Rpm) => metric_sender.send(MetricMessage::now(MetricId::FAN_2, data.into())),
+                Some(CanIds::CanIdFan3Rpm) => metric_sender.send(MetricMessage::now(MetricId::FAN_3, data.into())),
+                Some(CanIds::CanIdFan4Rpm) => metric_sender.send(MetricMessage::now(MetricId::FAN_4, data.into())),
+                Some(CanIds::CanIdSolarPower) => metric_sender.send(MetricMessage::now(MetricId::SOLAR_POWER, data.into())),
+                Some(CanIds::CanIdSolarTemp) => metric_sender.send(MetricMessage::now(MetricId::SOLAR_TEMP, data.into())),
                 _x => Ok(0)
             };
 

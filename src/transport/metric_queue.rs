@@ -3,9 +3,10 @@ use std::time::{UNIX_EPOCH, SystemTime};
 
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use tokio::sync::Mutex;
-use wannsea_types::types::Metric;
+use wannsea_types::MetricMessage;
+use wannsea_types::MetricId;
 
-use crate::messaging::app_message::{MetricSender, MetricMessage};
+use crate::messaging::MetricSender;
 
 #[derive(Clone)]
 pub struct MetricStats {
@@ -43,9 +44,9 @@ impl<T> MetricQueue<T> {
             stats.metrics_in = 0;
             stats.metrics_out = 0;
             stats.last_ts = ts;
-            self.metric_sender.send(MetricMessage::now(Metric::TxQueueCount, Metric::val_f32(stats.len as f32))).unwrap();
-            self.metric_sender.send(MetricMessage::now(Metric::TxInPerSec, Metric::val_f32(stats.metrics_in_per_sec as f32))).unwrap();
-            self.metric_sender.send(MetricMessage::now(Metric::TxOutPerSec, Metric::val_f32(stats.metrics_out_per_sec as f32))).unwrap();
+            self.metric_sender.send(MetricMessage::now(MetricId::TX_QUEUE_COUNT, (stats.len as f32).into())).unwrap();
+            self.metric_sender.send(MetricMessage::now(MetricId::TX_IN_PER_SEC, (stats.metrics_in_per_sec as f32).into())).unwrap();
+            self.metric_sender.send(MetricMessage::now(MetricId::TX_OUT_PER_SEC, (stats.metrics_out_per_sec as f32).into())).unwrap();
         }
     }
 

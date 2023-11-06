@@ -2,8 +2,9 @@ use futures::{StreamExt, SinkExt};
 use log::info;
 use tokio::{net::{TcpListener, TcpStream}, sync::broadcast};
 use tokio_tungstenite::tungstenite::Message;
+use wannsea_types::MetricMessage;
 
-use crate::{messaging::app_message::MetricMessage, SETTINGS};
+use crate::{SETTINGS};
 
 pub struct WebSocketServer {
     message_bus: broadcast::Sender<MetricMessage>
@@ -22,7 +23,7 @@ fn handle_client(stream: TcpStream, addr: String, metric_bus: broadcast::Sender<
         let mut receiver = metric_bus.subscribe();
         loop {
             let msg = receiver.recv().await.unwrap();
-            out.send(Message::text(msg.get_json_repr())).await.unwrap();
+            //out.send(Message::text(msg.get_json_repr())).await.unwrap();
         }
     });
 }
