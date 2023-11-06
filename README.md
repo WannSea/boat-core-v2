@@ -25,3 +25,9 @@ Then you can just run the project by calling `cargo run`
 
 ## Configuration
 The project defines a single config.toml located in the root of this project allowing you to configure various parameters of the different components.
+
+## Missing Features
+This is still a WIP, it has never been tested on the boat. Currently there are also some missing features from the original boat-core, which still need to be implemented:
+- UI (**NOT** inside this repo)
+- GPS/IMU Fusion
+- GPIO Buttons
