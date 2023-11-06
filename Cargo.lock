@@ -1510,7 +1510,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "wannsea_types"
 version = "0.1.101"
-source = "git+https://github.com/WannSea/type-lib.git#a12c0655b8ec9020eb1b2ff8f470204683a3e896"
+source = "git+https://github.com/WannSea/type-lib.git#65582d6c51c3df568124dd59e159f42fa9af34a0"
 dependencies = [
  "codegen",
  "serde",

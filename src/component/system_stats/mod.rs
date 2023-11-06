@@ -1,5 +1,5 @@
 use log::{error, debug};
-use systemstat::{saturating_sub_bytes, Duration, System, Platform, NetworkStats, ByteSize};
+use systemstat::{saturating_sub_bytes, Duration, System, Platform};
 use wannsea_types::{MetricMessage, MetricId};
 
 use crate::{messaging::MetricSender, SETTINGS};
@@ -14,7 +14,6 @@ impl SystemStats {
     }
 
     pub async fn collect_stats(metric_sender: MetricSender) {
-        let mut last_network_stats: NetworkStats = NetworkStats { rx_bytes: ByteSize(0), tx_bytes: ByteSize(0), rx_packets: 0, tx_packets: 0, rx_errors: 0, tx_errors: 0 };
         loop {
 
             let sys = System::new();
