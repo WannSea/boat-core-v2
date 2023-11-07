@@ -1,4 +1,4 @@
-use log::{error, debug};
+use log::{error, debug, info};
 use systemstat::{saturating_sub_bytes, Duration, System, Platform};
 use wannsea_types::{MetricMessage, MetricId};
 
@@ -89,7 +89,11 @@ impl SystemStats {
     }
 
     pub fn start(&self) {
-        tokio::spawn(Self::collect_stats(self.metric_sender.clone()));
+        if SETTINGS.get::<bool>("system.enabled").unwrap() {
+            info!("System Stats enabled!");
+            
+            tokio::spawn(Self::collect_stats(self.metric_sender.clone()));
+        }
     }
 }
 

@@ -51,6 +51,8 @@ impl WebSocketClient {
 
     pub fn start(&self) {
         if SETTINGS.get::<bool>("ws-client.enabled").unwrap() {
+            info!("WebSocket Client enabled!");
+            
             tokio::spawn(Self::start_thread( self.cached_messages.clone()));
         
             let metric_sender = self.metric_sender.clone();

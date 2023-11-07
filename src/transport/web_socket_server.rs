@@ -37,6 +37,8 @@ impl WebSocketServer {
 
     pub fn start(&self) {
         if SETTINGS.get::<bool>("ws-server.enabled").unwrap() {
+            info!("WebSocket Server enabled!");
+
             let message_bus = self.message_bus.clone();
             tokio::spawn(async move {
                 let addr = SETTINGS.get::<String>("ws-server.address").unwrap();

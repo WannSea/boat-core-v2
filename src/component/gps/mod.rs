@@ -1,7 +1,7 @@
 use std::str;
 
 use futures::StreamExt;
-use log::{error, debug};
+use log::{error, debug, info};
 use tokio_serial::SerialPortBuilderExt;
 use tokio_util::codec::Decoder;
 use wannsea_types::{MetricMessage, MetricId};
@@ -74,7 +74,11 @@ impl GPS {
     }
 
     pub fn start(&self) {
-        tokio::spawn(Self::run_thread(self.metric_sender.clone()));
+        if SETTINGS.get::<bool>("gps.enabled").unwrap() == true {
+            info!("GPS enabled!");
+
+            tokio::spawn(Self::run_thread(self.metric_sender.clone()));
+        }
     }
 }
 

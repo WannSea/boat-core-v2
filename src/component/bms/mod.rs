@@ -2,9 +2,10 @@ mod structs;
 mod read_thread;
 mod main_thread;
 
+use log::info;
 use tokio::sync::mpsc;
 
-use crate::{can::{CanSender, CanReceiver}, helper::MetricSender};
+use crate::{can::{CanSender, CanReceiver}, helper::MetricSender, SETTINGS};
 
 use self::{main_thread::BmsMainThread, read_thread::BmsReadThread, structs::BatteryPack};
 
@@ -24,9 +25,13 @@ impl BMS {
     }
 
     pub fn start(&self) {
-        let (notifier, receiver) = mpsc::channel::<BatteryPack>(16);
-        tokio::spawn(BmsMainThread::start(self.can_sender.clone(), receiver));
-        tokio::spawn(BmsReadThread::start(self.can_receiver.clone(), self.metric_sender.clone(), notifier));
+        if SETTINGS.get::<bool>("bms.enabled").unwrap() {
+            info!("BMS enabled!");
+            
+            let (notifier, receiver) = mpsc::channel::<BatteryPack>(16);
+            tokio::spawn(BmsMainThread::start(self.can_sender.clone(), receiver));
+            tokio::spawn(BmsReadThread::start(self.can_receiver.clone(), self.metric_sender.clone(), notifier));
+        }
     }
 }
 

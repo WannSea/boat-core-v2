@@ -1,5 +1,5 @@
 use futures::{StreamExt, SinkExt};
-use log::{error, debug, warn};
+use log::{error, debug, warn, info};
 use systemstat::Duration;
 use tokio::time::sleep;
 use tokio_serial::SerialPortBuilderExt;
@@ -22,7 +22,7 @@ impl LTE {
             .open_native_async() {
                 Ok(port) => port,
                 Err(_e) => {
-                    error!("Could not open GPS port. Exiting thread!");
+                    error!("Could not open LTE port. Exiting thread!");
                     return;
                 }
             };
@@ -78,7 +78,11 @@ impl LTE {
     }
 
     pub fn start(&self) {
-        tokio::spawn(Self::run_thread(self.metric_sender.clone()));
+        if SETTINGS.get::<bool>("lte.enabled").unwrap() == true {
+            info!("LTE enabled!");
+
+            tokio::spawn(Self::run_thread(self.metric_sender.clone()));
+        }
     }
 }
 

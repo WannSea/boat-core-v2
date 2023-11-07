@@ -1,7 +1,7 @@
 pub mod ids;
 
 use futures::StreamExt;
-use log::error;
+use log::{error, info};
 use tokio::sync::broadcast;
 use socketcan::{tokio::CanSocket, CanFrame, Id};
 
@@ -52,14 +52,15 @@ impl CAN {
     }
 
     pub fn start() -> Self {
-        let interface = SETTINGS.get::<String>("can.interface").unwrap();
-
         let (receiver, _receiver_rx) = broadcast::channel::<CanFrame>(16);
         let (sender, _sender_rx) = broadcast::channel::<CanFrame>(16);
-    
-        tokio::spawn(Self::can_to_rx(interface.clone(), receiver.clone()));
-
-        tokio::spawn(Self::tx_to_can(interface, sender.clone()));
+        
+        if SETTINGS.get::<bool>("can.enabled").unwrap() {
+            info!("CAN enabled!");
+            let interface = SETTINGS.get::<String>("can.interface").unwrap();
+            tokio::spawn(Self::can_to_rx(interface.clone(), receiver.clone()));
+            tokio::spawn(Self::tx_to_can(interface, sender.clone()));
+        }
 
         CAN { sender, receiver }
     }

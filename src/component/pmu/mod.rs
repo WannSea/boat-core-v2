@@ -1,3 +1,4 @@
+use log::info;
 use num_traits::FromPrimitive;
 use socketcan::EmbeddedFrame;
 use wannsea_types::{MetricId, MetricMessage};
@@ -40,6 +41,8 @@ impl PMU {
 
     pub fn start(&self) {
         if SETTINGS.get::<bool>("pmu.enabled").unwrap() == true {
+            info!("PMU enabled!");
+
             tokio::spawn(Self::listen_can(self.can_receiver.clone(), self.metric_sender.clone()));
         }
     }

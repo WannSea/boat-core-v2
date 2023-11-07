@@ -1,4 +1,4 @@
-use log::{trace, warn};
+use log::{trace, warn, debug};
 use socketcan::EmbeddedFrame;
 use wannsea_types::{MetricId, MetricMessage};
 
@@ -37,11 +37,12 @@ impl BmsReadThread {
     }
 
     async fn parse_bms_id_v_21_24(&self, metrics: &[MetricId; 5], data: &[u8]) {
+        
         let ah_discharged_in_life = u16::from_be_bytes(data[0..2].try_into().unwrap());
         let remaining_capacity = u16::from_be_bytes(data[2..4].try_into().unwrap());
         let soh = data[4];
         let soc = data[5];
-        let i_batt_i = u16::from_be_bytes(data[6..7].try_into().unwrap());
+        let i_batt_i = u16::from_be_bytes(data[6..8].try_into().unwrap());
 
         self.send_metric(MetricMessage::now(metrics[0], ah_discharged_in_life.into()));
         self.send_metric(MetricMessage::now(metrics[1], remaining_capacity.into()));
@@ -66,7 +67,9 @@ impl BmsReadThread {
             }
 
             let id = get_can_id(frame.id());
+
             let bms_id = (id >> 12) as u8;
+           
             let data = frame.data();
             if bms_id < 1 || bms_id >9 {
                 self.parse_bms_master_message(id, data);
@@ -81,7 +84,6 @@ impl BmsReadThread {
                     part_number: u32::from_be_bytes(data[4..8].try_into().unwrap()),
                 };
                 // Got bat pack serial number answer, notify main/write thread
-                trace!("Found new battery pack with id: {}, serial_number: {}, part_number: {}", pack.id, pack.serial_number, pack.part_number);
                 self.pack_notifier.send(pack).await.unwrap();
             } 
             else if bms_requested_fun == BmsFunction::BmsIdV01_04 as u32 {

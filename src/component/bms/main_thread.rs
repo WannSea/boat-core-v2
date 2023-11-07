@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use log::{debug, error, trace};
-use socketcan::{StandardId, CanFrame, EmbeddedFrame};
-use crate::{can::CanSender, component::bms::structs::EmsRequest};
+use socketcan::{StandardId, CanFrame, EmbeddedFrame, ExtendedId};
+use crate::{can::CanSender, component::bms::structs::EmsRequest, SETTINGS};
 
 use super::{structs::{BmsIndividualRequestFunction, BatteryPack}, BatteryPackReceiver};
 
@@ -18,13 +18,13 @@ impl BmsMainThread {
     // Request specific individual request for all packs
     fn request_all_packs(&self, battery_packs: &BatteryPacks, function: BmsIndividualRequestFunction) {
         for bat_pack in battery_packs.values() {
-            let id = StandardId::new(EmsRequest::BmsIndividualRequest as u16).unwrap();
+            let id = ((bat_pack.id as u32) << 12) | (EmsRequest::BmsIndividualRequest as u32);
 
             let mut data = Vec::new();
             data.extend(bat_pack.serial_number.to_be_bytes());
             data.extend(vec![0, 0, 0, function as u8]);
 
-            let frame = CanFrame::new(id, &data).unwrap();
+            let frame = CanFrame::new(ExtendedId::new(id).unwrap(), &data).unwrap();
             match  self.can_sender.send(frame) {
                 Ok(_data) => trace!("Sent individual request with function {} for every pack!", function),
                 Err(_err) => debug!("Error sending poll bat pack msg")
@@ -45,17 +45,22 @@ impl BmsMainThread {
 
     async fn start_bms_communication_run(&self, mut pack_receiver: BatteryPackReceiver) {
         let mut battery_packs: BatteryPacks = HashMap::new();
+        let request_interval = SETTINGS.get::<u32>("").unwrap();
         loop {
             // Check if read thread has notified us about new packs
             while let Ok(pack) = pack_receiver.try_recv() {
-                battery_packs.insert(pack.id, pack);
+                if !battery_packs.contains_key(&pack.id) {
+                    debug!("Found new battery pack with id: {}, serial_number: {}, part_number: {}", pack.id, pack.serial_number, pack.part_number);
+                    battery_packs.insert(pack.id, pack);
+                }
             }
 
-            self.aquire_serial_number().await;            
-            tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+            tokio::time::sleep(tokio::time::Duration::from_millis(250)).await;
             self.request_all_packs(&battery_packs, BmsIndividualRequestFunction::AllMeasurements);
-            tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+            tokio::time::sleep(tokio::time::Duration::from_millis(250)).await;
             self.request_all_packs(&battery_packs, BmsIndividualRequestFunction::InternalStatus1);
+            // tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
+            // self.aquire_serial_number().await;         
         }
     }
 

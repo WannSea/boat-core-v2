@@ -1,17 +1,10 @@
 [can]
+enabled = true
 log = false
 interface = "vcan0"
 
-[system]
-interval = 10
-memory = true
-swap = true
-cpu_temp = false
-cpu_usage = true
-uptime = true
-network = false
-network_if = "enp4s0"
 
+# Transport protocols
 [ws-server]
 enabled = true
 address = "0.0.0.0:8080"
@@ -21,6 +14,21 @@ enabled = true
 retry_timeout = 1000
 address = "ws://192.168.64.1:8000"
 
+# Metric components
+[system]
+enabled = true
+interval = 1000
+memory = true
+swap = true
+cpu_temp = true
+cpu_usage = true
+uptime = true
+network = true
+network_if = "enp4s0"
+
+[bms]
+enabled = true
+
 [pmu]
 enabled = true
 
@@ -29,4 +37,5 @@ enabled = true
 port = "/dev/pts/7"
 
 [lte]
+enabled = true
 port = "/dev/pts/4"
