@@ -1,4 +1,4 @@
-use log::{error, debug, info};
+use log::{info, error};
 use systemstat::{saturating_sub_bytes, Duration, System, Platform};
 use wannsea_types::{MetricMessage, MetricId};
 

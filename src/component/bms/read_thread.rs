@@ -1,4 +1,4 @@
-use log::{trace, warn, debug};
+use log::warn;
 use socketcan::EmbeddedFrame;
 use wannsea_types::{MetricId, MetricMessage};
 

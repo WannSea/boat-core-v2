@@ -1,5 +1,5 @@
 use log::debug;
-use simple_logger::SimpleLogger;
+
 use socketcan::EmbeddedFrame;
 
 use crate::{can::{CanReceiver, get_can_id}, SETTINGS};

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, time::{UNIX_EPOCH, SystemTime}};
+use std::collections::HashMap;
 
 use log::{debug, error, trace};
 use socketcan::{StandardId, CanFrame, EmbeddedFrame, ExtendedId};
