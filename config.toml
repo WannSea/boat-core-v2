@@ -3,7 +3,7 @@ log = false
 interface = "vcan0"
 
 [system]
-interval = 1000
+interval = 10
 memory = true
 swap = true
 cpu_temp = false
