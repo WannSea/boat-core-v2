@@ -171,11 +171,11 @@ impl BmsReadThread {
         }
         else if requested_function == BmsFunction::GlobalStatus5 as u32 {
             self.send_metric(MetricMessage::now(MetricId::GLOBAL_BAT_CURRENT, i16::from_be_bytes(data[0 .. 2].try_into().unwrap()).into()));
-            self.send_metric(MetricMessage::now(MetricId::GLOBAL_CELL_MIN, i16::from_be_bytes(data[2 .. 4].try_into().unwrap()).into()));
-            self.send_metric(MetricMessage::now(MetricId::GLOBAL_CELL_MAX, i16::from_be_bytes(data[4 .. 6].try_into().unwrap()).into()));
+            self.send_metric(MetricMessage::now(MetricId::GLOBAL_CELL_V_MIN, i16::from_be_bytes(data[2 .. 4].try_into().unwrap()).into()));
+            self.send_metric(MetricMessage::now(MetricId::GLOBAL_CELL_V_MAX, i16::from_be_bytes(data[4 .. 6].try_into().unwrap()).into()));
 
-            self.send_metric(MetricMessage::now(MetricId::GLOBAL_CELL_MIN_ID, ((data[6] & 0x0F) as u8).into()));
-            self.send_metric(MetricMessage::now(MetricId::GLOBAL_CELL_MAX_ID, ((data[6] >> 4) as u8).into()));
+            self.send_metric(MetricMessage::now(MetricId::GLOBAL_CELL_V_MIN_ID, ((data[6] & 0x0F) as u8).into()));
+            self.send_metric(MetricMessage::now(MetricId::GLOBAL_CELL_V_MAX_ID, ((data[6] >> 4) as u8).into()));
         }
     }
 }
