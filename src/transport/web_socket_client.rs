@@ -16,7 +16,7 @@ pub struct WebSocketClient {
 
 
 impl WebSocketClient {
-    pub fn new(metric_sender: &MetricSender) -> Self {
+    pub fn new(metric_sender: MetricSender) -> Self {
         WebSocketClient { metric_sender: metric_sender.clone(), cached_messages: MetricQueue::new(metric_sender.clone()) }
     }
 
@@ -52,7 +52,7 @@ impl WebSocketClient {
     pub fn start(&self) {
         if SETTINGS.get::<bool>("ws-client.enabled").unwrap() {
             info!("WebSocket Client enabled!");
-            
+
             tokio::spawn(Self::start_thread( self.cached_messages.clone()));
         
             let metric_sender = self.metric_sender.clone();

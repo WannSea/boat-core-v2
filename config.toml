@@ -1,8 +1,10 @@
+[logging]
+can = false
+metrics = false
+
 [can]
 enabled = true
-log = false
 interface = "vcan0"
-
 
 # Transport protocols
 [ws-server]
@@ -28,6 +30,8 @@ network_if = "enp4s0"
 
 [bms]
 enabled = true
+request_interval = 1000
+search_interval = 10000
 
 [pmu]
 enabled = true

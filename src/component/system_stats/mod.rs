@@ -41,8 +41,8 @@ impl SystemStats {
             if SETTINGS.get::<bool>("system.network").unwrap() {
                 let network_if = SETTINGS.get::<String>("system.network_if").unwrap();
                 match sys.network_stats(&network_if) {
-                    Ok(stats) => {
-                       debug!("{}", stats.tx_bytes.as_u64());
+                    Ok(_stats) => {
+                       // ToDo: Report Network Traffic
                     },
                     Err(x) => error!("Network: error: {}", x)
                 }
@@ -91,7 +91,7 @@ impl SystemStats {
     pub fn start(&self) {
         if SETTINGS.get::<bool>("system.enabled").unwrap() {
             info!("System Stats enabled!");
-            
+
             tokio::spawn(Self::collect_stats(self.metric_sender.clone()));
         }
     }

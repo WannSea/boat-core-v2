@@ -1,8 +1,8 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, time::{UNIX_EPOCH, SystemTime}};
 
 use log::{debug, error, trace};
 use socketcan::{StandardId, CanFrame, EmbeddedFrame, ExtendedId};
-use crate::{can::CanSender, component::bms::structs::EmsRequest, SETTINGS};
+use crate::{can::CanSender, component::bms::structs::EmsRequest, SETTINGS, helper::get_ts_ms};
 
 use super::{structs::{BmsIndividualRequestFunction, BatteryPack}, BatteryPackReceiver};
 
@@ -45,7 +45,10 @@ impl BmsMainThread {
 
     async fn start_bms_communication_run(&self, mut pack_receiver: BatteryPackReceiver) {
         let mut battery_packs: BatteryPacks = HashMap::new();
-        let request_interval = SETTINGS.get::<u32>("").unwrap();
+        let request_interval = SETTINGS.get::<u64>("bms.request_interval").unwrap();
+        let bms_search_interval = SETTINGS.get::<u64>("bms.search_interval").unwrap();
+
+        let mut last_searched: u128 = 0;
         loop {
             // Check if read thread has notified us about new packs
             while let Ok(pack) = pack_receiver.try_recv() {
@@ -55,12 +58,16 @@ impl BmsMainThread {
                 }
             }
 
-            tokio::time::sleep(tokio::time::Duration::from_millis(250)).await;
+            tokio::time::sleep(tokio::time::Duration::from_millis(request_interval / 2)).await;
             self.request_all_packs(&battery_packs, BmsIndividualRequestFunction::AllMeasurements);
-            tokio::time::sleep(tokio::time::Duration::from_millis(250)).await;
+            tokio::time::sleep(tokio::time::Duration::from_millis(request_interval / 2)).await;
             self.request_all_packs(&battery_packs, BmsIndividualRequestFunction::InternalStatus1);
-            // tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
-            // self.aquire_serial_number().await;         
+
+            if get_ts_ms() - last_searched > bms_search_interval as u128 {
+                self.aquire_serial_number().await;
+                last_searched = get_ts_ms();
+            }
+         
         }
     }
 
