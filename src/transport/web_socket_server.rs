@@ -23,7 +23,9 @@ fn handle_client(stream: TcpStream, addr: String, metric_bus: broadcast::Sender<
         let mut receiver = metric_bus.subscribe();
         loop {
             let msg = receiver.recv().await.unwrap();
-            out.send(Message::text(msg.get_json_repr())).await.unwrap();
+            if let Ok(data) = msg.get_json_repr() {
+                out.send(Message::text(data)).await.unwrap();
+            }
         }
     });
 }

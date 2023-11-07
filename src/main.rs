@@ -48,7 +48,7 @@ async fn main() {
     tokio::spawn(async move {
         loop { 
             let metric = metric_receiver.recv().await.unwrap();
-            debug!(target: "Metric", "{}", metric.get_json_repr());
+            debug!(target: "Metric", "{}", metric.get_json_repr().unwrap_or_else(|e| format!("Metric {}: {}", metric.id, e)));
         }
     });
 

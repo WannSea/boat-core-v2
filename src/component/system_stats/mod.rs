@@ -21,8 +21,8 @@ impl SystemStats {
             if SETTINGS.get::<bool>("system.memory").unwrap() {
                 match sys.memory() {
                     Ok(mem) => {
-                        metric_sender.send(MetricMessage::now(MetricId::MEM_USED, ((saturating_sub_bytes(mem.total, mem.free).as_u64() / 1024) as f32).into())).unwrap();
-                        metric_sender.send(MetricMessage::now(MetricId::MEM_TOTAL, ((mem.total.as_u64() / 1024) as f32).into())).unwrap();
+                        metric_sender.send(MetricMessage::now(MetricId::MEM_USED, (saturating_sub_bytes(mem.total, mem.free).as_u64()).into())).unwrap();
+                        metric_sender.send(MetricMessage::now(MetricId::MEM_TOTAL, (mem.total.as_u64()).into())).unwrap();
                     },
                     Err(x) => error!("Memory: error: {}", x)
                 }
@@ -31,8 +31,8 @@ impl SystemStats {
             if SETTINGS.get::<bool>("system.swap").unwrap() {
                 match sys.swap() {
                     Ok(swap) => {
-                        metric_sender.send(MetricMessage::now(MetricId::SWAP_USED, ((saturating_sub_bytes(swap.total, swap.free).as_u64() / 1024) as f32).into())).unwrap();
-                        metric_sender.send(MetricMessage::now(MetricId::SWAP_TOTAL, ((swap.total.as_u64() / 1024) as f32).into())).unwrap();
+                        metric_sender.send(MetricMessage::now(MetricId::SWAP_USED, (saturating_sub_bytes(swap.total, swap.free).as_u64()).into())).unwrap();
+                        metric_sender.send(MetricMessage::now(MetricId::SWAP_TOTAL, (swap.total.as_u64()).into())).unwrap();
                     },
                     Err(x) => error!("Swap: error: {}", x)
                 }
