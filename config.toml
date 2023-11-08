@@ -22,10 +22,10 @@ enabled = true
 interval = 1000
 memory = true
 swap = true
-cpu_temp = true
+cpu_temp = false
 cpu_usage = true
 uptime = true
-network = true
+network = false
 network_if = "enp4s0"
 
 [bms]
