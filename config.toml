@@ -19,7 +19,7 @@ address = "ws://192.168.64.1:8000"
 # Metric components
 [system]
 enabled = true
-interval = 1000
+interval = 1001
 memory = true
 swap = true
 cpu_temp = false
