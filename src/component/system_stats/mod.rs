@@ -41,8 +41,15 @@ impl SystemStats {
             if SETTINGS.get::<bool>("system.network").unwrap() {
                 let network_if = SETTINGS.get::<String>("system.network_if").unwrap();
                 match sys.network_stats(&network_if) {
-                    Ok(_stats) => {
+                    Ok(stats) => {
                        // ToDo: Report Network Traffic
+
+                       metric_sender.send(MetricMessage::now(MetricId::NET_RX_BYTES, stats.rx_bytes.as_u64().into())).unwrap();
+                       metric_sender.send(MetricMessage::now(MetricId::NET_TX_BYTES, stats.tx_bytes.as_u64().into())).unwrap();
+                       metric_sender.send(MetricMessage::now(MetricId::NET_RX_PACKETS, stats.rx_packets.into())).unwrap();
+                       metric_sender.send(MetricMessage::now(MetricId::NET_TX_PACKETS, stats.tx_packets.into())).unwrap();
+                       metric_sender.send(MetricMessage::now(MetricId::NET_RX_ERORRS, stats.rx_errors.into())).unwrap();
+                       metric_sender.send(MetricMessage::now(MetricId::NET_TX_ERORRS, stats.tx_errors.into())).unwrap();
                     },
                     Err(x) => error!("Network: error: {}", x)
                 }
