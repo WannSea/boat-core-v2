@@ -25,8 +25,3 @@ tokio-util = { version = "0.7.9", features = ["codec"] }
 strum = "0.25.0"
 strum_macros = "0.25.3"
 
-<<<<<<< HEAD
-=======
-[net]
-git-fetch-with-cli = true
->>>>>>> d89cc5a (idk)
