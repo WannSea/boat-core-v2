@@ -115,6 +115,7 @@ dependencies = [
  "num-derive",
  "num-traits",
  "prost",
+ "serde_json",
  "simple_logger",
  "socketcan",
  "strum",
@@ -1613,7 +1614,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "wannsea_types"
 version = "0.1.101"
-source = "git+ssh://git@github.com/WannSea/type-lib.git#456a7dcc3e036bdb8cab3afe0001ac310523b290"
+source = "git+ssh://git@github.com/WannSea/type-lib.git#b81a31942c94e4d47b72aa915b598dbe3a409554"
 dependencies = [
  "codegen",
  "prost",
