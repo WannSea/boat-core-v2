@@ -4,7 +4,7 @@ use systemstat::Duration;
 use tokio::time::sleep;
 use tokio_serial::SerialPortBuilderExt;
 use tokio_util::codec::Decoder;
-use wannsea_types::MetricId;
+use wannsea_types::MessageId;
 use wannsea_types::boat_core_message::Value;
 
 use crate::{helper::{MetricSender, serial_ext::LineCodec, MetricSenderExt}, SETTINGS};
@@ -45,7 +45,7 @@ impl LTE {
                         let cmd_result = cmd[1].trim().split(',').collect::<Vec<&str>>();
                         let network_mode = cmd_result[0];
                         debug!("Network mode: {}", network_mode);
-                        metric_sender.send_now(MetricId::CELLULAR_NETWORK_MODE, Value::String(network_mode.to_string())).unwrap();
+                        metric_sender.send_now(MessageId::CellularNetworkMode, Value::String(network_mode.to_string())).unwrap();
 
                     },
                     // +CSQ: 22,0
@@ -53,7 +53,7 @@ impl LTE {
                         let cmd_result = cmd[1].trim().split(',').collect::<Vec<&str>>();
                         let signal_quality = cmd_result[0].parse::<f32>().unwrap();
                         debug!("Signal Quality: {}", signal_quality);
-                        metric_sender.send_now(MetricId::CELLULAR_SIGNAL_QUALITY, Value::Float(signal_quality)).unwrap();
+                        metric_sender.send_now(MessageId::CellularSignalQuality, Value::Float(signal_quality)).unwrap();
                     },
                     d => warn!("Unknown cmd {}", d)
                 }

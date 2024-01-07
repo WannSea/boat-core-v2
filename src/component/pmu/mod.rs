@@ -1,7 +1,7 @@
 use log::info;
 use num_traits::FromPrimitive;
 use socketcan::EmbeddedFrame;
-use wannsea_types::MetricId;
+use wannsea_types::MessageId;
 use wannsea_types::boat_core_message::Value;
 
 use crate::{can::{CanReceiver, get_can_id, ids::CanIds}, helper::{MetricSender, MetricSenderExt}, SETTINGS};
@@ -23,16 +23,16 @@ impl PMU {
             let data = frame.data().to_vec();
             let id = get_can_id(frame.id());
             let result = match FromPrimitive::from_u32(id) {
-                Some(CanIds::CanIdApmuTemp) => metric_sender.send_now(MetricId::APMU_TEMP, Value::Bytes(data)),
-                Some(CanIds::CanIdMpmuTemp) => metric_sender.send_now(MetricId::MPMU_TEMP, Value::Bytes(data)),
-                Some(CanIds::CanIdMotorCurrent) => metric_sender.send_now(MetricId::MOTOR_CURRENT, Value::Bytes(data)),
-                Some(CanIds::CanIdBattVoltage) => metric_sender.send_now(MetricId::BATTERY_VOLTAGE, Value::Bytes(data)),
-                Some(CanIds::CanIdFan1Rpm) => metric_sender.send_now(MetricId::FAN_1, Value::Bytes(data)),
-                Some(CanIds::CanIdFan2Rpm) => metric_sender.send_now(MetricId::FAN_2, Value::Bytes(data)),
-                Some(CanIds::CanIdFan3Rpm) => metric_sender.send_now(MetricId::FAN_3, Value::Bytes(data)),
-                Some(CanIds::CanIdFan4Rpm) => metric_sender.send_now(MetricId::FAN_4, Value::Bytes(data)),
-                Some(CanIds::CanIdSolarPower) => metric_sender.send_now(MetricId::SOLAR_POWER, Value::Bytes(data)),
-                Some(CanIds::CanIdSolarTemp) => metric_sender.send_now(MetricId::SOLAR_TEMP, Value::Bytes(data)),
+                Some(CanIds::CanIdApmuTemp) => metric_sender.send_now(MessageId::ApmuTemp, Value::Bytes(data)),
+                Some(CanIds::CanIdMpmuTemp) => metric_sender.send_now(MessageId::MpmuTemp, Value::Bytes(data)),
+                Some(CanIds::CanIdMotorCurrent) => metric_sender.send_now(MessageId::MotorCurrent, Value::Bytes(data)),
+                Some(CanIds::CanIdBattVoltage) => metric_sender.send_now(MessageId::BatteryVoltage, Value::Bytes(data)),
+                Some(CanIds::CanIdFan1Rpm) => metric_sender.send_now(MessageId::Fan1, Value::Bytes(data)),
+                Some(CanIds::CanIdFan2Rpm) => metric_sender.send_now(MessageId::Fan2, Value::Bytes(data)),
+                Some(CanIds::CanIdFan3Rpm) => metric_sender.send_now(MessageId::Fan3, Value::Bytes(data)),
+                Some(CanIds::CanIdFan4Rpm) => metric_sender.send_now(MessageId::Fan4, Value::Bytes(data)),
+                Some(CanIds::CanIdSolarPower) => metric_sender.send_now(MessageId::SolarPower, Value::Bytes(data)),
+                Some(CanIds::CanIdSolarTemp) => metric_sender.send_now(MessageId::SolarTemp, Value::Bytes(data)),
                 _x => Ok(0)
             };
 

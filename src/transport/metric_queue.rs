@@ -3,7 +3,7 @@ use std::time::{UNIX_EPOCH, SystemTime};
 
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use tokio::sync::Mutex;
-use wannsea_types::MetricId;
+use wannsea_types::MessageId;
 use wannsea_types::boat_core_message::Value;
 
 use crate::helper::{MetricSender, MetricSenderExt};
@@ -44,9 +44,9 @@ impl<T> MetricQueue<T> {
             stats.metrics_in = 0;
             stats.metrics_out = 0;
             stats.last_ts = ts;
-            self.metric_sender.send_now(MetricId::TX_QUEUE_COUNT, Value::Float(stats.len as f32)).unwrap();
-            self.metric_sender.send_now(MetricId::TX_IN_PER_SEC, Value::Float(stats.metrics_in_per_sec as f32)).unwrap();
-            self.metric_sender.send_now(MetricId::TX_OUT_PER_SEC, Value::Float(stats.metrics_out_per_sec as f32)).unwrap();
+            self.metric_sender.send_now(MessageId::TxQueueCount, Value::Float(stats.len as f32)).unwrap();
+            self.metric_sender.send_now(MessageId::TxInPerSec, Value::Float(stats.metrics_in_per_sec as f32)).unwrap();
+            self.metric_sender.send_now(MessageId::TxOutPerSec, Value::Float(stats.metrics_out_per_sec as f32)).unwrap();
         }
     }
 
