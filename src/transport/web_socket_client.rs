@@ -40,7 +40,6 @@ impl WebSocketClient {
                 let mut buf = Vec::new();
                 buf.reserve(msg.encoded_len());
                 msg.encode(&mut buf).unwrap();
-                println!("SIZE: {}", buf.len());
                 let send_result = write.send(tokio_tungstenite::tungstenite::Message::Binary(buf)).await;
                 match send_result {
                     Ok(_res) => {},
