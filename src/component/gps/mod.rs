@@ -31,10 +31,10 @@ impl GPS {
         let ddd = lon[..3].parse::<f32>().unwrap();
         let lon_rest = lon[3..].parse::<f32>().unwrap();
 
-        sender.send_now(MetricId::GPS_LAT, Value::Float(dd + (lat_rest / 60.0)));
-        sender.send_now(MetricId::GPS_LON, Value::Float(ddd + (lon_rest / 60.0)));
-        sender.send_now(MetricId::GPS_SPEED, Value::Float(velocity.parse::<f32>().unwrap()));
-        sender.send_now(MetricId::GPS_COURSE, Value::Float(course.parse::<f32>().unwrap()));
+        sender.send_now(MetricId::GPS_LAT, Value::Float(dd + (lat_rest / 60.0))).unwrap();
+        sender.send_now(MetricId::GPS_LON, Value::Float(ddd + (lon_rest / 60.0))).unwrap();
+        sender.send_now(MetricId::GPS_SPEED, Value::Float(velocity.parse::<f32>().unwrap())).unwrap();
+        sender.send_now(MetricId::GPS_COURSE, Value::Float(course.parse::<f32>().unwrap())).unwrap();
     }
 
     fn process_pqxfi(line: &Vec<&str>, sender: &MetricSender) {
@@ -43,21 +43,21 @@ impl GPS {
         let vert_uncertainty = line[8];
         let velo_uncertainty = line[9];
 
-        sender.send_now(MetricId::GPS_ALTITUDE, Value::Float(altitude.parse::<f32>().unwrap()));
-        sender.send_now(MetricId::GPS_HOR_ERROR, Value::Float(hor_error.parse::<f32>().unwrap()));
-        sender.send_now(MetricId::GPS_VERT_UNCERTAINTY, Value::Float(vert_uncertainty.parse::<f32>().unwrap()));
-        sender.send_now(MetricId::GPS_VELO_UNCERTAINTY, Value::Float(velo_uncertainty.parse::<f32>().unwrap()));
+        sender.send_now(MetricId::GPS_ALTITUDE, Value::Float(altitude.parse::<f32>().unwrap())).unwrap();
+        sender.send_now(MetricId::GPS_HOR_ERROR, Value::Float(hor_error.parse::<f32>().unwrap())).unwrap();
+        sender.send_now(MetricId::GPS_VERT_UNCERTAINTY, Value::Float(vert_uncertainty.parse::<f32>().unwrap())).unwrap();
+        sender.send_now(MetricId::GPS_VELO_UNCERTAINTY, Value::Float(velo_uncertainty.parse::<f32>().unwrap())).unwrap();
     }
 
     pub async fn run_thread(metric_sender: MetricSender) {
         let port = match tokio_serial::new(SETTINGS.get::<String>("gps.port").unwrap(), 115_200)
-            .open_native_async() {
-                Ok(port) => port,
-                Err(_e) => {
-                    error!("Could not open GPS port. Exiting thread!");
-                    return;
-                }
-            };
+        .open_native_async() {
+            Ok(port) => port,
+            Err(_e) => {
+                error!("Could not open GPS port. Exiting thread!");
+                return;
+            }
+        };
 
         let mut reader = LineCodec.framed(port);
         while let Some(line_result) = reader.next().await {

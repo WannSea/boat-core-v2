@@ -57,7 +57,7 @@ impl SystemStats {
             if SETTINGS.get::<bool>("system.uptime").unwrap() {
                 match sys.uptime() {
                     Ok(uptime) => {
-                        metric_sender.send_now(MetricId::SYSTEM_UPTIME, Value::Float((uptime.as_secs_f32()))).unwrap();
+                        metric_sender.send_now(MetricId::SYSTEM_UPTIME, Value::Float(uptime.as_secs_f32())).unwrap();
                     },
                     Err(x) => error!("Uptime: error: {}", x)
                 }
