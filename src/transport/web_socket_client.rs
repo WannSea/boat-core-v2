@@ -2,16 +2,16 @@
 
 use futures::{StreamExt, SinkExt};
 use log::{info, debug};
-use tokio_tungstenite::{connect_async, tungstenite::Message};
-use wannsea_types::MetricMessage;
-
+use tokio_tungstenite::connect_async;
+use wannsea_types::BoatCoreMessage;
+use prost::Message;
 use crate::{helper::MetricSender, SETTINGS};
 
 use super::metric_queue::MetricQueue;
 
 pub struct WebSocketClient {
     metric_sender: MetricSender,
-    cached_messages: MetricQueue<MetricMessage>
+    cached_messages: MetricQueue<BoatCoreMessage>
 } 
 
 
@@ -20,7 +20,7 @@ impl WebSocketClient {
         WebSocketClient { metric_sender: metric_sender.clone(), cached_messages: MetricQueue::new(metric_sender.clone()) }
     }
 
-    async fn start_thread(metric_queue: MetricQueue<MetricMessage>) {
+    async fn start_thread(metric_queue: MetricQueue<BoatCoreMessage>) {
         loop {        
             debug!("Trying to connect to ws...");
             let addr = SETTINGS.get::<String>("ws-client.address").unwrap().to_string();
@@ -36,8 +36,12 @@ impl WebSocketClient {
             let (mut write, _read) = res.unwrap().0.split();
             
             loop {
-                let msg: MetricMessage = metric_queue.pop().await;
-                let send_result = write.send(Message::Binary(msg.clone().into())).await;
+                let msg: BoatCoreMessage = metric_queue.pop().await;
+                let mut buf = Vec::new();
+                buf.reserve(msg.encoded_len());
+                msg.encode(&mut buf).unwrap();
+
+                let send_result = write.send(tokio_tungstenite::tungstenite::Message::Binary(buf)).await;
                 match send_result {
                     Ok(_res) => {},
                     Err(_err) => {

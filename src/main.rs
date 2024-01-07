@@ -11,7 +11,7 @@ use simple_logger::SimpleLogger;
 use lazy_static::lazy_static;
 use tokio::{sync::broadcast, signal};
 use transport::web_socket_client::WebSocketClient;
-use wannsea_types::MetricMessage;
+use wannsea_types::BoatCoreMessage;
 use crate::{transport::web_socket_server::WebSocketServer, component::bms::BMS, can::CAN};
 lazy_static! {
     static ref SETTINGS: Config = Config::builder()
@@ -26,7 +26,7 @@ async fn main() {
     SimpleLogger::new().with_level(log::LevelFilter::Debug).init().unwrap();
 
     // Metric bus
-    let (metric_sender, _metric_receiver) = broadcast::channel::<MetricMessage>(16);
+    let (metric_sender, _metric_receiver) = broadcast::channel::<BoatCoreMessage>(16);
 
     let can = CAN::start();
 

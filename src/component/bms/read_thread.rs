@@ -1,7 +1,10 @@
 use log::warn;
 use socketcan::EmbeddedFrame;
-use wannsea_types::{MetricId, MetricMessage};
+use wannsea_types::BoatCoreMessage;
+use wannsea_types::MetricId;
+use wannsea_types::boat_core_message::Value;
 
+use crate::helper::MetricSenderExt;
 use crate::{can::{CanReceiver, get_can_id}, helper::MetricSender};
 
 use super::{structs::{BmsFunction, BatteryPack}, BatteryPackNotifier};
@@ -19,20 +22,20 @@ impl BmsReadThread {
         thread.start_receiving().await;
     }
 
-    fn send_metric(&self, message: MetricMessage) {
+    fn send_metric(&self, message: BoatCoreMessage) {
         self.metric_sender.send(message).unwrap();
     }
 
     async fn parse_voltage_data(&self, metrics: Vec<MetricId>, data: &[u8]) {
         for (idx, metric) in metrics.iter().enumerate() {
             let base_idx = idx * 2;
-            self.send_metric(MetricMessage::now(*metric, u16::from_be_bytes(data[base_idx..(base_idx + 2)].try_into().unwrap()).into()));
+            self.metric_sender.send_now(*metric, Value::Uint32(u16::from_be_bytes(data[base_idx..(base_idx + 2)].try_into().unwrap()) as u32));
         }
     }
 
     async fn parse_temp_data(&self, metrics: &[MetricId; 3], data: &[u8]) {
         for (idx, metric) in metrics.iter().enumerate() {
-            self.send_metric(MetricMessage::now(*metric, (data[idx] - 40).into()));
+            self.metric_sender.send_now(*metric, Value::Uint32((data[idx] - 40) as u32));
         }
     }
 
@@ -44,16 +47,16 @@ impl BmsReadThread {
         let soc = data[5];
         let i_batt_i = u16::from_be_bytes(data[6..8].try_into().unwrap());
 
-        self.send_metric(MetricMessage::now(metrics[0], ah_discharged_in_life.into()));
-        self.send_metric(MetricMessage::now(metrics[1], remaining_capacity.into()));
-        self.send_metric(MetricMessage::now(metrics[2], soh.into()));
-        self.send_metric(MetricMessage::now(metrics[3], soc.into()));
-        self.send_metric(MetricMessage::now(metrics[4], i_batt_i.into()));
+        self.metric_sender.send_now(metrics[0], Value::Uint32(ah_discharged_in_life.into()));
+        self.metric_sender.send_now(metrics[1], Value::Uint32(remaining_capacity.into()));
+        self.metric_sender.send_now(metrics[2], Value::Uint32(soh.into()));
+        self.metric_sender.send_now(metrics[3], Value::Uint32(soc.into()));
+        self.metric_sender.send_now(metrics[4], Value::Uint32(i_batt_i.into()));
     }
 
     async fn parse_internal_status_1(&self, metrics: &[MetricId; 4], data: &[u8]) {
         for (idx, metric) in metrics.iter().enumerate() {
-            self.send_metric(MetricMessage::now(*metric, data[idx].into()));
+            self.metric_sender.send_now(*metric, Value::Uint32(data[idx].into()));
         }
     }
 
@@ -150,34 +153,34 @@ impl BmsReadThread {
         let requested_function = id & 0x0FFF;
 
         if requested_function == BmsFunction::EmsControl as u32 {
-            self.send_metric(MetricMessage::now(MetricId::MAX_BATTERY_DISCHARGE_CURRENT, u16::from_be_bytes(data[0..2].try_into().unwrap()).into()));
-            self.send_metric(MetricMessage::now(MetricId::MAX_BATTERY_RECHARGE_CURRENT, u16::from_be_bytes(data[2..4].try_into().unwrap()).into()));
+            self.metric_sender.send_now(MetricId::MAX_BATTERY_DISCHARGE_CURRENT, Value::Uint32(u16::from_be_bytes(data[0..2].try_into().unwrap()).into()));
+            self.metric_sender.send_now(MetricId::MAX_BATTERY_RECHARGE_CURRENT, Value::Uint32(u16::from_be_bytes(data[2..4].try_into().unwrap()).into()));
         }
         else if requested_function == BmsFunction::GlobalStatus3 as u32 {
-            self.send_metric(MetricMessage::now(MetricId::GLOBAL_SOC, data[0].into()));
-            self.send_metric(MetricMessage::now(MetricId::ID_GLOBAL_SOC, ((data[1] >> 4) as u8).into()));
-            self.send_metric(MetricMessage::now(MetricId::GLOBAL_IBMS_ALARM_STATE, ((data[2] & 0x03) as u8).into()));
-            self.send_metric(MetricMessage::now(MetricId::NUMBER_OF_CONNECTED_BMS, ((data[2] >> 4) as u8).into()));
-            self.send_metric(MetricMessage::now(MetricId::POWERBUS_INFORMATION, (data[3] as u8).into()));
+            self.metric_sender.send_now(MetricId::GLOBAL_SOC, Value::Uint32(data[0].into()));
+            self.metric_sender.send_now(MetricId::ID_GLOBAL_SOC, Value::Uint32(((data[1] >> 4) as u8).into()));
+            self.metric_sender.send_now(MetricId::GLOBAL_IBMS_ALARM_STATE, Value::Uint32(((data[2] & 0x03) as u8).into()));
+            self.metric_sender.send_now(MetricId::NUMBER_OF_CONNECTED_BMS, Value::Uint32(((data[2] >> 4) as u8).into()));
+            self.metric_sender.send_now(MetricId::POWERBUS_INFORMATION, Value::Uint32((data[3] as u8).into()));
         }
         else if requested_function == BmsFunction::GlobalStatus4 as u32 {
-            self.send_metric(MetricMessage::now(MetricId::BAT_TMIN, (data[0] as u8 - 40).into()));
-            self.send_metric(MetricMessage::now(MetricId::BAT_TMAX, (data[1] as u8 - 40).into()));
-            self.send_metric(MetricMessage::now(MetricId::BAT_ID_TMIN, ((data[2] & 0x0F) as u8).into()));
-            self.send_metric(MetricMessage::now(MetricId::BAT_ID_TMAX, ((data[2] >> 4) as u8).into()));
+            self.metric_sender.send_now(MetricId::BAT_TMIN, Value::Uint32((data[0] as u8 - 40).into()));
+            self.metric_sender.send_now(MetricId::BAT_TMAX, Value::Uint32((data[1] as u8 - 40).into()));
+            self.metric_sender.send_now(MetricId::BAT_ID_TMIN, Value::Uint32(((data[2] & 0x0F) as u8).into()));
+            self.metric_sender.send_now(MetricId::BAT_ID_TMAX, Value::Uint32(((data[2] >> 4) as u8).into()));
 
-            self.send_metric(MetricMessage::now(MetricId::BAT_VMIN, u16::from_be_bytes(data[3 .. 5].try_into().unwrap()).into()));
-            self.send_metric(MetricMessage::now(MetricId::BAT_VMAX, u16::from_be_bytes(data[5 .. 7].try_into().unwrap()).into()));
-            self.send_metric(MetricMessage::now(MetricId::BAT_ID_VMIN, ((data[7] & 0x0F) as u8).into()));
-            self.send_metric(MetricMessage::now(MetricId::BAT_ID_VMAX, ((data[7] >> 4) as u8).into()));
+            self.metric_sender.send_now(MetricId::BAT_VMIN, Value::Uint32(u16::from_be_bytes(data[3 .. 5].try_into().unwrap()).into()));
+            self.metric_sender.send_now(MetricId::BAT_VMAX, Value::Uint32(u16::from_be_bytes(data[5 .. 7].try_into().unwrap()).into()));
+            self.metric_sender.send_now(MetricId::BAT_ID_VMIN, Value::Uint32(((data[7] & 0x0F) as u8).into()));
+            self.metric_sender.send_now(MetricId::BAT_ID_VMAX, Value::Uint32(((data[7] >> 4) as u8).into()));
         }
         else if requested_function == BmsFunction::GlobalStatus5 as u32 {
-            self.send_metric(MetricMessage::now(MetricId::GLOBAL_BAT_CURRENT, i16::from_be_bytes(data[0 .. 2].try_into().unwrap()).into()));
-            self.send_metric(MetricMessage::now(MetricId::GLOBAL_CELL_V_MIN, i16::from_be_bytes(data[2 .. 4].try_into().unwrap()).into()));
-            self.send_metric(MetricMessage::now(MetricId::GLOBAL_CELL_V_MAX, i16::from_be_bytes(data[4 .. 6].try_into().unwrap()).into()));
+            self.metric_sender.send_now(MetricId::GLOBAL_BAT_CURRENT, Value::Sint32(i16::from_be_bytes(data[0 .. 2].try_into().unwrap()).into()));
+            self.metric_sender.send_now(MetricId::GLOBAL_CELL_V_MIN, Value::Sint32(i16::from_be_bytes(data[2 .. 4].try_into().unwrap()).into()));
+            self.metric_sender.send_now(MetricId::GLOBAL_CELL_V_MAX, Value::Sint32(i16::from_be_bytes(data[4 .. 6].try_into().unwrap()).into()));
 
-            self.send_metric(MetricMessage::now(MetricId::GLOBAL_CELL_V_MIN_ID, ((data[6] & 0x0F) as u8).into()));
-            self.send_metric(MetricMessage::now(MetricId::GLOBAL_CELL_V_MAX_ID, ((data[6] >> 4) as u8).into()));
+            self.metric_sender.send_now(MetricId::GLOBAL_CELL_V_MIN_ID, Value::Uint32(((data[6] & 0x0F) as u8).into()));
+            self.metric_sender.send_now(MetricId::GLOBAL_CELL_V_MAX_ID, Value::Uint32(((data[6] >> 4) as u8).into()));
         }
     }
 }

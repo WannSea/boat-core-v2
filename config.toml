@@ -26,7 +26,7 @@ cpu_temp = false
 cpu_usage = true
 uptime = true
 network = true
-network_if = "enp0s1"
+network_if = "enp4s0"
 
 [bms]
 enabled = true

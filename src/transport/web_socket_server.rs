@@ -2,15 +2,15 @@ use futures::{StreamExt, SinkExt};
 use log::info;
 use tokio::{net::{TcpListener, TcpStream}, sync::broadcast};
 use tokio_tungstenite::tungstenite::Message;
-use wannsea_types::MetricMessage;
+use wannsea_types::BoatCoreMessage;
 
-use crate::SETTINGS;
+use crate::{SETTINGS, helper::MetricSender};
 
 pub struct WebSocketServer {
-    message_bus: broadcast::Sender<MetricMessage>
+    message_bus: MetricSender
 } 
 
-fn handle_client(stream: TcpStream, addr: String, metric_bus: broadcast::Sender<MetricMessage>) {
+fn handle_client(stream: TcpStream, addr: String, metric_bus: MetricSender) {
     tokio::spawn(async move {
         let ws_stream = tokio_tungstenite::accept_async(stream)
                 .await
@@ -23,15 +23,15 @@ fn handle_client(stream: TcpStream, addr: String, metric_bus: broadcast::Sender<
         let mut receiver = metric_bus.subscribe();
         loop {
             let msg = receiver.recv().await.unwrap();
-            if let Ok(data) = msg.get_json_repr() {
-                out.send(Message::text(data)).await.unwrap();
-            }
+            // if let Ok(data) = msg.get_json_repr() {
+            //     out.send(Message::text(data)).await.unwrap();
+            // }
         }
     });
 }
 
 impl WebSocketServer {
-    pub fn new(message_bus: broadcast::Sender<MetricMessage>) -> Self {
+    pub fn new(message_bus: MetricSender) -> Self {
         WebSocketServer { message_bus }
     }
 

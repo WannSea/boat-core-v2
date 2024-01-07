@@ -1,6 +1,7 @@
 use log::debug;
 
 use socketcan::EmbeddedFrame;
+use wannsea_types::MetricId;
 
 use crate::{can::{CanReceiver, get_can_id}, SETTINGS};
 
@@ -24,7 +25,7 @@ impl Logger {
         let mut metric_receiver = metric_sender.subscribe();
         loop { 
             let metric = metric_receiver.recv().await.unwrap();
-            debug!(target: "Metric", "{}", metric.get_json_repr().unwrap_or_else(|e| format!("Metric {}: {}", metric.id, e)));
+            debug!(target: "Metric", "{} {:?}", MetricId::from_repr(metric.cat as usize).unwrap(), metric.value.unwrap());
         }
     }
 
