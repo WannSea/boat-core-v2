@@ -12,14 +12,14 @@ enabled = true
 address = "0.0.0.0:8080"
 
 [ws-client]
-enabled = true
+enabled = false
 retry_timeout = 1000
 address = "ws://127.0.0.1:8000"
 
 # Metric components
 [system]
 enabled = true
-interval = 1001
+interval = 1000
 memory = true
 swap = true
 cpu_temp = false
