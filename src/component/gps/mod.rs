@@ -4,7 +4,7 @@ use futures::StreamExt;
 use log::{error, debug, info};
 use tokio_serial::SerialPortBuilderExt;
 use tokio_util::codec::Decoder;
-use wannsea_types::MessageId;
+use wannsea_types::{MessageId, Vector2};
 use wannsea_types::boat_core_message::Value;
 use crate::{helper::{serial_ext::LineCodec, MetricSender, MetricSenderExt}, SETTINGS};
 
@@ -31,8 +31,9 @@ impl GPS {
         let ddd = lon[..3].parse::<f32>().unwrap();
         let lon_rest = lon[3..].parse::<f32>().unwrap();
 
-        sender.send_now(MessageId::GpsLat, Value::Float(dd + (lat_rest / 60.0))).unwrap();
-        sender.send_now(MessageId::GpsLon, Value::Float(ddd + (lon_rest / 60.0))).unwrap();
+        let lat = dd + (lat_rest / 60.0);
+        let lon = ddd + (lon_rest / 60.0);
+        sender.send_now(MessageId::GpsPos, Value::Vector2(Vector2 { x: lat, y: lon })).unwrap();
         sender.send_now(MessageId::GpsSpeed, Value::Float(velocity.parse::<f32>().unwrap())).unwrap();
         sender.send_now(MessageId::GpsCourse, Value::Float(course.parse::<f32>().unwrap())).unwrap();
     }

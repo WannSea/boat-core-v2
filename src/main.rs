@@ -2,7 +2,7 @@ mod helper;
 mod can;
 mod transport;
 mod component;
-use component::{system_stats::SystemStats, pmu::PMU, gps::GPS, lte::LTE};
+use component::{system_stats::SystemStats, pmu::PMU, gps::GPS, lte::LTE, computed::sensor_fusion::{self, SensorFusion}};
 use config::Config;
 
 
@@ -38,6 +38,9 @@ async fn main() {
 
     let ws_client = WebSocketClient::new(metric_sender.clone());
     ws_client.start();
+
+    let sensor_fusion = SensorFusion::new(metric_sender.clone());
+    sensor_fusion.start();
 
     let bms: BMS = BMS::new(can.sender.clone(), can.receiver.clone(), metric_sender.clone());
     bms.start();
