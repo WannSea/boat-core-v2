@@ -26,7 +26,7 @@ cpu_temp = false
 cpu_usage = true
 uptime = true
 network = true
-network_if = "enp4s0"
+network_if = "usb0"
 
 [bms]
 enabled = true
@@ -38,8 +38,8 @@ enabled = true
 
 [gps]
 enabled = true
-port = "/dev/pts/7"
+port = "/dev/ttyUSB1"
 
 [lte]
 enabled = true
-port = "/dev/pts/4"
+port = "/dev/ttyUSB2"

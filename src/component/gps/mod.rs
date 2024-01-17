@@ -23,19 +23,24 @@ impl GPS {
         let velocity = line[7];
         let course = line[8];
 
-        debug!("{:?}", line);
-
-        let dd = lat[..2].parse::<f32>().unwrap();
-        let lat_rest = lat[2..].parse::<f32>().unwrap();
-
-        let ddd = lon[..3].parse::<f32>().unwrap();
-        let lon_rest = lon[3..].parse::<f32>().unwrap();
-
-        let lat = dd + (lat_rest / 60.0);
-        let lon = ddd + (lon_rest / 60.0);
-        sender.send_now(MessageId::GpsPos, Value::Vector2(Vector2 { x: lat, y: lon })).unwrap();
-        sender.send_now(MessageId::GpsSpeed, Value::Float(velocity.parse::<f32>().unwrap())).unwrap();
-        sender.send_now(MessageId::GpsCourse, Value::Float(course.parse::<f32>().unwrap())).unwrap();
+        if lat.len() > 2 && lon.len() > 3 {
+            let dd = lat[..2].parse::<f32>().unwrap();
+            let lat_rest = lat[2..].parse::<f32>().unwrap();
+    
+            let ddd = lon[..3].parse::<f32>().unwrap();
+            let lon_rest = lon[3..].parse::<f32>().unwrap();
+    
+            let lat = dd + (lat_rest / 60.0);
+            let lon = ddd + (lon_rest / 60.0);
+            sender.send_now(MessageId::GpsPos, Value::Vector2(Vector2 { x: lat, y: lon })).unwrap();
+        }
+      
+        if let Ok(val) = velocity.parse::<f32>() {
+            sender.send_now(MessageId::GpsSpeed, Value::Float(val)).unwrap();
+        }
+        if let Ok(val) = course.parse::<f32>() {
+            sender.send_now(MessageId::GpsCourse, Value::Float(val)).unwrap();
+        }
     }
 
     fn process_pqxfi(line: &Vec<&str>, sender: &MetricSender) {
@@ -44,10 +49,21 @@ impl GPS {
         let vert_uncertainty = line[8];
         let velo_uncertainty = line[9];
 
-        sender.send_now(MessageId::GpsAltitude, Value::Float(altitude.parse::<f32>().unwrap())).unwrap();
-        sender.send_now(MessageId::GpsHorError, Value::Float(hor_error.parse::<f32>().unwrap())).unwrap();
-        sender.send_now(MessageId::GpsVertUncertainty, Value::Float(vert_uncertainty.parse::<f32>().unwrap())).unwrap();
-        sender.send_now(MessageId::GpsVeloUncertainty, Value::Float(velo_uncertainty.parse::<f32>().unwrap())).unwrap();
+        if let Ok(val) = altitude.parse::<f32>() {
+            sender.send_now(MessageId::GpsAltitude, Value::Float(val)).unwrap();
+        }
+
+        if let Ok(val) = hor_error.parse::<f32>() {
+            sender.send_now(MessageId::GpsHorError, Value::Float(val)).unwrap();
+        }
+
+        if let Ok(val) = vert_uncertainty.parse::<f32>() {
+            sender.send_now(MessageId::GpsVertUncertainty, Value::Float(val)).unwrap();
+        }
+
+        if let Ok(val) = velo_uncertainty.parse::<f32>() {
+            sender.send_now(MessageId::GpsVeloUncertainty, Value::Float(val)).unwrap();
+        }
     }
 
     pub async fn run_thread(metric_sender: MetricSender) {
