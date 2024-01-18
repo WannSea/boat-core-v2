@@ -1,30 +1,40 @@
 use futures::{StreamExt, SinkExt};
-use log::info;
-use tokio::net::{TcpListener, TcpStream};
-use tokio_tungstenite::tungstenite::Message;
-
+use log::{info, error};
+use tokio::{net::{TcpListener, TcpStream}, io::{AsyncRead, AsyncWrite}};
+use tokio_tungstenite::{tungstenite::{Message, self, handshake::server::{Request, Response, ErrorResponse}}, WebSocketStream};
 use crate::{SETTINGS, helper::MetricSender};
 
 pub struct WebSocketServer {
     message_bus: MetricSender
 } 
+async fn handle_raw_socket<T: AsyncRead + AsyncWrite + Unpin>(
+    socket: T
+) -> (Result<WebSocketStream<T>, tungstenite::Error>, Option<String>) {
+    let mut path = None;
+    let callback = |req: &Request, res: Response| -> Result<Response, ErrorResponse> {
+        path = Some(req.uri().path().to_string());
+        Ok(res)
+    };
+    (tokio_tungstenite::accept_hdr_async(socket, callback).await, path)
+}
 
-fn handle_client(stream: TcpStream, addr: String, metric_bus: MetricSender) {
+
+async fn handle_client(path: String, stream: WebSocketStream<TcpStream>, metric_bus: MetricSender) {   
     tokio::spawn(async move {
-        let ws_stream = tokio_tungstenite::accept_async(stream)
-                .await
-                .expect("Error during the websocket handshake occurred");
-        info!("WebSocket connection established: {}", addr);
+        info!("WebSocket connection established: {}", path);
 
-        let (mut out, _inc) = ws_stream.split();
+        let (mut out, _inc) = stream.split();
 
         // Message bus to ws
         let mut receiver = metric_bus.subscribe();
         loop {
-            let msg = receiver.recv().await.unwrap();
-            let json = serde_json::to_string_pretty(&msg).unwrap();
-            println!("{}", json);
-            out.send(Message::Text(json)).await.unwrap();
+            let msg: wannsea_types::BoatCoreMessage = receiver.recv().await.unwrap();
+
+            if path.to_lowercase() == "/" || msg.id().as_str_name() == &path[1..] {
+                let json = serde_json::to_string(&msg).unwrap();
+                out.send(Message::Text(json)).await.unwrap();
+            }
+
         }
     });
 }
@@ -46,8 +56,15 @@ impl WebSocketServer {
                 info!("Listening on: {}", addr);
     
                 // Let's spawn the handling of each connection in a separate task.
-                while let Ok((stream, addr)) = listener.accept().await {       
-                   handle_client(stream, addr.to_string(), message_bus.clone());
+                while let Ok((stream, _addr)) = listener.accept().await {       
+                    let ws = handle_raw_socket(stream).await;
+                    match ws {
+                        (Ok(ws), Some(path)) =>  {
+                            println!("WS CONNECT {}", path);
+                            handle_client(path, ws, message_bus.clone()).await;
+                        },
+                        _ => error!("Ws Connect error")
+                    }
                 }
             });
         }

@@ -18,7 +18,7 @@ impl MetricSenderExt for MetricSender {
     fn send_now(&self, id: MessageId, value: Value) -> Result<usize, tokio::sync::broadcast::error::SendError<BoatCoreMessage>> {
         let mut msg = wannsea_types::BoatCoreMessage::default();
         msg.set_id(id);
-        msg.timestamp = get_ts_ms().try_into().unwrap();
+        msg.timestamp = Some(pbjson_types::Timestamp::from(chrono::Utc::now()));
         msg.value = Some(value);
         self.send(msg)
     }
