@@ -25,7 +25,7 @@ impl GPS {
             ParsedMessage::Incomplete => { /* Is okay, do nothing */ },
             ParsedMessage::Gsv(gsv) => {
                 // Could use more data, satellite count probably only thing we need
-                sender.send_now(MessageId::GpsSatelliteCount, Value::Uint32(gsv.len() as u32)).unwrap();
+                //sender.send_now(MessageId::GpsSatelliteCount, Value::Uint32(gsv.len() as u32)).unwrap();
             },
             ParsedMessage::Gns(gns) => {
                 // debug!("GNS: {:?}", gns);
