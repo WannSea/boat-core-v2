@@ -145,6 +145,7 @@ dependencies = [
  "lazy_static",
  "log",
  "nalgebra",
+ "nmea0183",
  "num-derive",
  "num-traits",
  "pbjson-types",
@@ -855,6 +856,12 @@ dependencies = [
  "memoffset",
  "pin-utils",
 ]
+
+[[package]]
+name = "nmea0183"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26ec7092fb691e529fc66f4c41aa4aa589ab43fe1a19a727e2e608f13f70f6bb"
 
 [[package]]
 name = "nom"
