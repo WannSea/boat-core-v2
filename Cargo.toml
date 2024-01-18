@@ -20,7 +20,7 @@ num-traits = "0.2.16"
 num-derive = "0.4.0"
 tokio-serial = "5.4.1"
 prost = "0.12"
-wannsea_types = { git = "ssh://git@github.com/WannSea/type-lib.git" }
+wannsea_types = { git = "https://github.com/WannSea/type-lib.git" }
 crossbeam-queue = "0.3.8"
 tokio-util = { version = "0.7.9", features = ["codec"] }
 strum = "0.25.0"

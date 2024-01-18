@@ -1,6 +1,6 @@
 [logging]
 can = true
-metrics = false
+metrics = true
 
 [can]
 enabled = true
