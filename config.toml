@@ -1,6 +1,6 @@
 [logging]
 can = true
-metrics = false
+metrics = true
 
 [can]
 enabled = true
@@ -12,7 +12,7 @@ enabled = true
 address = "0.0.0.0:8080"
 
 [ws-client]
-enabled = false
+enabled = true
 retry_timeout = 1000
 address = "ws://127.0.0.1:8000"
 

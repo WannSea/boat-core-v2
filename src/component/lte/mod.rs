@@ -86,7 +86,7 @@ impl LTE {
                 Self::send_serial_msg(&mut tx, "AT+CPSI?\r").await;
                 sleep(Duration::from_millis(500)).await;
 
-                Self::send_serial_msg(&mut tx, "AT+CSQ?\r").await;
+                Self::send_serial_msg(&mut tx, "AT+CSQ\r").await;
                 sleep(Duration::from_millis(500)).await;
             }
         });
