@@ -43,3 +43,6 @@ port = "/dev/ttyUSB1"
 [lte]
 enabled = true
 port = "/dev/ttyUSB2"
+
+[imu]
+enabled = true

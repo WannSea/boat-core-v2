@@ -2,7 +2,7 @@ mod helper;
 mod can;
 mod transport;
 mod component;
-use component::{system_stats::SystemStats, pmu::PMU, gps::GPS, lte::LTE, computed::sensor_fusion::{self, SensorFusion}};
+use component::{system_stats::SystemStats, pmu::PMU, gps::GPS, lte::LTE, computed::sensor_fusion::{self, SensorFusion}, imu::IMU};
 use config::Config;
 
 
@@ -56,6 +56,9 @@ async fn main() {
 
     let lte: LTE = LTE::new(metric_sender.clone());
     lte.start();
+
+    let imu: IMU = IMU::new(metric_sender.clone());
+    imu.start();
 
     signal::ctrl_c().await.unwrap();
 }

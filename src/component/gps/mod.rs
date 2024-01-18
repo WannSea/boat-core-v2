@@ -12,6 +12,7 @@ pub struct GPS {
     metric_sender: MetricSender
 }
 
+// ToDo: Maybe use https://lib.rs/crates/nmea0183
 impl GPS {
     pub fn new(metric_sender: MetricSender) -> Self {
         GPS { metric_sender }

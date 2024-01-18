@@ -39,6 +39,8 @@ impl LTE {
             };
         let stream = LineCodec.framed(port);
         let (mut tx, mut rx) = stream.split();
+
+        // Start GPS
         Self::send_serial_msg(&mut tx, "AT+CGPS=1\r").await;
 
         tokio::spawn(async move {
@@ -61,7 +63,6 @@ impl LTE {
                         let cmd_result = cmds[1].trim().split(',').collect::<Vec<&str>>();
                         let network_mode = cmd_result[0];
                         metric_sender.send_now(MessageId::CellularNetworkMode, Value::String(network_mode.to_string())).unwrap();
-
                     },
                     // +CSQ: 22,0
                     "+CSQ" => {
@@ -69,6 +70,8 @@ impl LTE {
                         let signal_quality = cmd_result[0].parse::<f32>().unwrap();
                         metric_sender.send_now(MessageId::CellularSignalQuality, Value::Float(signal_quality)).unwrap();
                     },
+                    // https://support.micromedia-int.com/hc/en-us/articles/360010426299-GSM-modem-CME-ERRORS-Equipment-Related-GSM-Errors-
+                    // +CME ERROR: X (where X is an individual Error Code)
                     "+CME ERROR" => {
                         warn!("CME ERROR: {}", cmds[1]);
                     },
@@ -88,8 +91,6 @@ impl LTE {
             }
         });
 
-
-        // https://github.com/berkowski/tokio-serial/issues/20
     }
 
     pub fn start(&self) {
