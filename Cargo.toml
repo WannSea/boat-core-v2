@@ -30,4 +30,4 @@ eskf = { git = "https://github.com/nordmoen/eskf-rs.git" }
 nalgebra = "0.32.3"
 pbjson-types = "0.6.0"
 chrono = "0.4.31"
-nmea0183 = "0.3.1"
+nmea-parser = "0.10.0"

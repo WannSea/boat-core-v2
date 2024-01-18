@@ -8,7 +8,7 @@ use tokio_util::codec::Decoder;
 use wannsea_types::{MessageId, Vector2};
 use wannsea_types::boat_core_message::Value;
 use crate::{helper::{serial_ext::LineCodec, MetricSender, MetricSenderExt}, SETTINGS};
-use nmea0183::{Parser, ParseResult};
+use nmea_parser::*;
 pub struct GPS {
     metric_sender: MetricSender
 }
@@ -78,30 +78,28 @@ impl GPS {
             }
         };
         
-        let mut parser = Parser::new();
-        loop {
-            if let Some(result) = parser.parse_from_byte(port.read_u8().await.unwrap()) {
-                match result {
-                    Ok(ParseResult::GGA(Some(gga))) => { }, // Got GGA sentence
-                    Ok(ParseResult::GGA(None)) => { }, // Got GGA sentence without valid data, receiver ok but has no solution
-                    Ok(_) => {}, // Some other sentences..
-                    Err(e) => { } // Got parse error
-                }
+        let mut parser = NmeaParser::new();
+        
+        let mut reader = LineCodec.framed(port);
+        while let Some(line_result) = reader.next().await {
+            let line = line_result.unwrap();
+            match parser.parse_sentence(line.as_str()) {
+                Ok(sentence) => {
+                    match sentence  {
+                        other => {
+                            debug!("NMEA {:?}", other);
+                        }
+                    }
+                },
+                Err(err) => error!("NMEA parse err {:?}", err)
             }
         }
         
-        // while  {
-        //     let line = line_result.unwrap();
-            
-        //     let input = line.trim().split('*').collect::<Vec<&str>>()[0].split(',').collect::<Vec<&str>>();
-        //     match input[0] {
-        //         "$PQXFI" => Self::process_pqxfi(&input, &metric_sender),
-        //         "$GPRMC" => Self::process_gprmc(&input, &metric_sender),
-        //         _ => ()
-        //     }
-        // }
-        
-        
+        tokio::spawn(async move {
+            loop {
+                tokio::time::sleep(core::time::Duration::from_secs(1)).await;
+            }
+        });
     }
 
     pub fn start(&self) {
