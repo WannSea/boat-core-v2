@@ -1854,7 +1854,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "wannsea_types"
 version = "0.1.101"
-source = "git+https://github.com/WannSea/type-lib.git#178707e86d79eb9cabd5301c43524deca1ea22b2"
+source = "git+https://github.com/WannSea/type-lib.git#f7d641fae0c037197a201fc065c99e7eed231933"
 dependencies = [
  "chrono",
  "pbjson",

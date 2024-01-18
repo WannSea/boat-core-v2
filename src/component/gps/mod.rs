@@ -1,7 +1,7 @@
 use std::str;
 
 use futures::StreamExt;
-use log::{error, debug, info};
+use log::{error, debug, info, warn};
 use tokio::io::AsyncReadExt;
 use tokio_serial::SerialPortBuilderExt;
 use tokio_util::codec::Decoder;
@@ -19,52 +19,33 @@ impl GPS {
         GPS { metric_sender }
     }
 
-    fn process_gprmc(line: &Vec<&str>, sender: &MetricSender) {
-        let lat = line[3];
-        let lon = line[5];
-        let velocity = line[7];
-        let course = line[8];
 
-        if lat.len() > 2 && lon.len() > 3 {
-            let dd = lat[..2].parse::<f32>().unwrap();
-            let lat_rest = lat[2..].parse::<f32>().unwrap();
-    
-            let ddd = lon[..3].parse::<f32>().unwrap();
-            let lon_rest = lon[3..].parse::<f32>().unwrap();
-    
-            let lat = dd + (lat_rest / 60.0);
-            let lon = ddd + (lon_rest / 60.0);
-            sender.send_now(MessageId::GpsPos, Value::Vector2(Vector2 { x: lat, y: lon })).unwrap();
-        }
-      
-        if let Ok(val) = velocity.parse::<f32>() {
-            sender.send_now(MessageId::GpsSpeed, Value::Float(val)).unwrap();
-        }
-        if let Ok(val) = course.parse::<f32>() {
-            sender.send_now(MessageId::GpsCourse, Value::Float(val)).unwrap();
-        }
-    }
-
-    fn process_pqxfi(line: &Vec<&str>, sender: &MetricSender) {
-        let altitude = line[6];
-        let hor_error = line[7];
-        let vert_uncertainty = line[8];
-        let velo_uncertainty = line[9];
-
-        if let Ok(val) = altitude.parse::<f32>() {
-            sender.send_now(MessageId::GpsAltitude, Value::Float(val)).unwrap();
-        }
-
-        if let Ok(val) = hor_error.parse::<f32>() {
-            sender.send_now(MessageId::GpsHorError, Value::Float(val)).unwrap();
-        }
-
-        if let Ok(val) = vert_uncertainty.parse::<f32>() {
-            sender.send_now(MessageId::GpsVertUncertainty, Value::Float(val)).unwrap();
-        }
-
-        if let Ok(val) = velo_uncertainty.parse::<f32>() {
-            sender.send_now(MessageId::GpsVeloUncertainty, Value::Float(val)).unwrap();
+    pub fn handle_sentence(message: ParsedMessage, sender: &MetricSender) {
+        match message {
+            ParsedMessage::Incomplete => { /* Is okay, do nothing */ },
+            ParsedMessage::Gsv(gsv) => {
+                // Could use more data, satellite count probably only thing we need
+                sender.send_now(MessageId::GpsSatelliteCount, Value::Uint32(gsv.len() as u32)).unwrap();
+            },
+            ParsedMessage::Gns(gns) => {
+                debug!("GNS: {:?}", gns);
+            },
+            ParsedMessage::Vtg(vtg) => {
+                debug!("vtg: {:?}", vtg);
+                
+            },
+            ParsedMessage::Gga(gga) => {
+                debug!("gga: {:?}", gga);
+                // Lat lon quality sat count 
+            },
+            ParsedMessage::Rmc(rmc) => {
+                debug!("rmc: {:?}", rmc);
+                // Speed and Course
+            },
+            ParsedMessage::Gsa(gsa) => {
+                /* Ignore */
+            },
+            unknown => warn!("Unknown NMEA sentence {:?}", unknown)
         }
     }
 
@@ -84,14 +65,8 @@ impl GPS {
         while let Some(line_result) = reader.next().await {
             let line = line_result.unwrap();
             match parser.parse_sentence(line.as_str()) {
-                Ok(sentence) => {
-                    match sentence  {
-                        other => {
-                            debug!("NMEA {:?}", other);
-                        }
-                    }
-                },
-                Err(err) => error!("NMEA parse err {:?}", err)
+                Ok(sentence) => Self::handle_sentence(sentence, &metric_sender),
+                Err(_err) => { /* Ignore, happens when unknown sentence arrive (only $XFI) */ }
             }
         }
         
