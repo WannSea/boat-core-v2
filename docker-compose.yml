@@ -7,6 +7,8 @@ services:
     container_name: boat-core-v2
     restart: always
     network_mode: host
+    privileged: true
     volumes:
       - '$PWD/config.toml:/usr/src/boat-core-v2/config.toml'
+      - '/dev:/dev'
     #To Do Serial Ports etc
