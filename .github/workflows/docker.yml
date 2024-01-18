@@ -27,4 +27,4 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/WannSea/boat-core-v2:latest
+          tags: ghcr.io/wannsea/boat-core-v2:latest
