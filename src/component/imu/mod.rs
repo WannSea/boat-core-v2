@@ -11,7 +11,7 @@ impl IMU {
         IMU { metric_sender }
     }
 
-    pub async fn run_thread(metric_sender: MetricSender) {
+    pub async fn run_thread(_metric_sender: MetricSender) {
 
     }
 

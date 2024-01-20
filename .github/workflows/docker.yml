@@ -25,7 +25,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64 # probably not needed as we only deploy on RasPi
+          platforms: linux/arm64 # probably not needed as we only deploy on RasPi
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: true

@@ -1,8 +1,5 @@
-use std::str;
-
 use futures::StreamExt;
 use log::{error, debug, info, warn};
-use tokio::io::AsyncReadExt;
 use tokio_serial::SerialPortBuilderExt;
 use tokio_util::codec::Decoder;
 use wannsea_types::{MessageId, Vector2};
@@ -23,26 +20,39 @@ impl GPS {
     pub fn handle_sentence(message: ParsedMessage, sender: &MetricSender) {
         match message {
             ParsedMessage::Incomplete => { /* Is okay, do nothing */ },
-            ParsedMessage::Gsv(gsv) => {
+            ParsedMessage::Gsv(_gsv) => {
                 // Could use more data, satellite count probably only thing we need
-                sender.send_now(MessageId::GpsSatelliteCount, Value::Uint32(gsv.len() as u32)).unwrap();
-            },
-            ParsedMessage::Gns(gns) => {
-                // debug!("GNS: {:?}", gns);
-            },
-            ParsedMessage::Vtg(vtg) => {
-                // debug!("vtg: {:?}", vtg);
                 
+            },
+            ParsedMessage::Gns(_gns) => {
+                //debug!("GNS: {:?}", gns);
+            },
+            ParsedMessage::Vtg(_vtg) => {
+                //debug!("vtg: {:?}", vtg);
             },
             ParsedMessage::Gga(gga) => {
                 // debug!("gga: {:?}", gga);
-                // Lat lon quality sat count 
+                // Lat lon sat count 
+                if let Some(sat_count) = gga.satellite_count {
+                    sender.send_now(MessageId::GpsSatelliteCount, Value::Uint32(sat_count as u32)).unwrap();
+                }
+                if let Some(gps_pos) = gga.latitude.and_then(|lat| gga.longitude.and_then(|lon| {
+                    Some(Vector2 { x: lat as f32, y: lon as f32 })
+                })) {
+                    sender.send_now(MessageId::GpsPos, Value::Vector2(gps_pos)).unwrap();
+                } 
             },
             ParsedMessage::Rmc(rmc) => {
                 // debug!("rmc: {:?}", rmc);
                 // Speed and Course
-            },
-            ParsedMessage::Gsa(gsa) => {
+                if let Some(speed) = rmc.sog_knots {
+                    sender.send_now(MessageId::GpsSpeed, Value::Double(speed)).unwrap();
+                }
+                if let Some(course) = rmc.bearing {
+                    sender.send_now(MessageId::GpsCourse, Value::Double(course)).unwrap();
+                }
+             },
+            ParsedMessage::Gsa(_gsa) => {
                 /* Ignore */
             },
             unknown => warn!("Unknown NMEA sentence {:?}", unknown)
@@ -50,7 +60,7 @@ impl GPS {
     }
 
     pub async fn run_thread(metric_sender: MetricSender) {
-        let mut port = match tokio_serial::new(SETTINGS.get::<String>("gps.port").unwrap(), 115_200)
+        let port = match tokio_serial::new(SETTINGS.get::<String>("gps.port").unwrap(), 115_200)
         .open_native_async() {
             Ok(port) => port,
             Err(_e) => {

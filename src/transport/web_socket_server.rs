@@ -2,6 +2,7 @@ use futures::{StreamExt, SinkExt};
 use log::{info, error};
 use tokio::{net::{TcpListener, TcpStream}, io::{AsyncRead, AsyncWrite}};
 use tokio_tungstenite::{tungstenite::{Message, self, handshake::server::{Request, Response, ErrorResponse}}, WebSocketStream};
+use wannsea_types::BoatCoreMessage;
 use crate::{SETTINGS, helper::MetricSender};
 
 pub struct WebSocketServer {
@@ -20,21 +21,33 @@ async fn handle_raw_socket<T: AsyncRead + AsyncWrite + Unpin>(
 
 
 async fn handle_client(path: String, stream: WebSocketStream<TcpStream>, metric_bus: MetricSender) {   
+    info!("WebSocket connection established: {}", path);
+    let (mut out, mut inc) = stream.split();
+
+    // Message bus to ws
+    let mut receiver = metric_bus.subscribe();
     tokio::spawn(async move {
-        info!("WebSocket connection established: {}", path);
-
-        let (mut out, _inc) = stream.split();
-
-        // Message bus to ws
-        let mut receiver = metric_bus.subscribe();
         loop {
-            let msg: wannsea_types::BoatCoreMessage = receiver.recv().await.unwrap();
+            let msg: BoatCoreMessage = receiver.recv().await.unwrap();
 
             if path.to_lowercase() == "/" || msg.id().as_str_name() == &path[1..] {
                 let json = serde_json::to_string(&msg).unwrap();
                 out.send(Message::Text(json)).await.unwrap();
             }
+        }
+    });
 
+    // Ws to message bus
+    let metric_sender = metric_bus.clone();
+    tokio::spawn(async move {
+        loop {
+            if let Some(Ok(msg)) = inc.next().await {
+                if let Ok(text) = msg.to_text() {
+                   if let Ok(bcm) = serde_json::from_str::<BoatCoreMessage>(text) {
+                        metric_sender.send(bcm).unwrap();
+                   }
+                }
+            }
         }
     });
 }

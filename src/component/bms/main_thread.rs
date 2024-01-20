@@ -26,7 +26,7 @@ impl BmsMainThread {
 
             let frame = CanFrame::new(ExtendedId::new(id).unwrap(), &data).unwrap();
             match  self.can_sender.send(frame) {
-                Ok(_data) => trace!("Sent individual request with function {} for every pack!", function),
+                Ok(_data) => trace!("Sent individual request with function {:?} for every pack!", function),
                 Err(_err) => debug!("Error sending poll bat pack msg")
             }
         }

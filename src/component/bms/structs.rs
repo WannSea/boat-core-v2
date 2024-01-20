@@ -1,5 +1,3 @@
-use strum_macros::Display;
-
 pub enum BmsFunction {
     // The function of the BMS response in the format:
     // CAN ID: 0x<4 Bit: ID><16 Bit: Function>.
@@ -25,7 +23,7 @@ pub enum BmsFunction {
     GlobalStatus5 = 0x406    
 }
 
-#[derive(Clone, Copy, Display)]
+#[derive(Clone, Copy, Debug)]
 pub enum BmsIndividualRequestFunction {
     AllMeasurements = 3,
     InternalStatus1 = 101
