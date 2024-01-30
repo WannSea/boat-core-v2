@@ -1,5 +1,5 @@
 use futures::StreamExt;
-use log::{error, debug, info, warn};
+use log::{error, info, warn};
 use tokio_serial::SerialPortBuilderExt;
 use tokio_util::codec::Decoder;
 use wannsea_types::{MessageId, Vector2};

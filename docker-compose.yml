@@ -1,9 +1,7 @@
 version: '3.8'
 services:
   boat-core-v2:
-    image: boat-core-v2
-    build: .
-
+    image: ghcr.io/wannsea/boat-core-v2:latest
     container_name: boat-core-v2
     restart: always
     network_mode: host
@@ -11,4 +9,3 @@ services:
     volumes:
       - '$PWD/config.toml:/usr/src/boat-core-v2/config.toml'
       - '/dev:/dev'
-    #To Do Serial Ports etc
