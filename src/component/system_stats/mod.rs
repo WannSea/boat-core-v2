@@ -71,6 +71,13 @@ impl SystemStats {
                     Err(x) => error!("CPU temp: {}", x)
                 }
             }
+            if SETTINGS.get::<bool>("system.cpu_freq").unwrap() {
+                let freqs = cpu_freq::get();
+                metric_sender.send_now(MessageId::CpuFreq1, Value::Float(freqs[0].cur.unwrap())).unwrap();
+                metric_sender.send_now(MessageId::CpuFreq2, Value::Float(freqs[1].cur.unwrap())).unwrap();
+                metric_sender.send_now(MessageId::CpuFreq3, Value::Float(freqs[2].cur.unwrap())).unwrap();
+                metric_sender.send_now(MessageId::CpuFreq4, Value::Float(freqs[3].cur.unwrap())).unwrap();
+            }
 
             let sleep_duration = Duration::from_millis(SETTINGS.get::<u64>("system.interval").unwrap());
             if SETTINGS.get::<bool>("system.cpu_usage").unwrap() {

@@ -28,18 +28,18 @@ impl GPS {
                 sender.send_now(MessageId::GpsSatelliteCount, Value::Uint32(gsv.len() as u32)).unwrap();
             },
             ParsedMessage::Gns(gns) => {
-                debug!("GNS: {:?}", gns);
+                // debug!("GNS: {:?}", gns);
             },
             ParsedMessage::Vtg(vtg) => {
-                debug!("vtg: {:?}", vtg);
+                // debug!("vtg: {:?}", vtg);
                 
             },
             ParsedMessage::Gga(gga) => {
-                debug!("gga: {:?}", gga);
+                // debug!("gga: {:?}", gga);
                 // Lat lon quality sat count 
             },
             ParsedMessage::Rmc(rmc) => {
-                debug!("rmc: {:?}", rmc);
+                // debug!("rmc: {:?}", rmc);
                 // Speed and Course
             },
             ParsedMessage::Gsa(gsa) => {
