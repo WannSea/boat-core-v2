@@ -2,7 +2,7 @@ mod helper;
 mod can;
 mod transport;
 mod component;
-use component::{system_stats::SystemStats, pmu::PMU, gps::GPS, lte::LTE, computed::sensor_fusion::{self, SensorFusion}, imu::IMU};
+use component::{system_stats::SystemStats, pmu::PMU, gps::GPS, lte::LTE, computed::sensor_fusion::SensorFusion, imu::IMU};
 use config::Config;
 
 

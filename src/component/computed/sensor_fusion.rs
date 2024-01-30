@@ -1,7 +1,7 @@
 use eskf;
 use log::{info, warn};
 use nalgebra::{Vector3, Point3};
-use wannsea_types::{MessageId, Vector2, boat_core_message::Value};
+use wannsea_types::{MessageId, boat_core_message::Value};
 use std::time::Duration;
 
 use crate::{helper::MetricSender, SETTINGS};

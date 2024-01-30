@@ -44,7 +44,7 @@ impl<T> MetricQueue<T> {
             stats.metrics_in = 0;
             stats.metrics_out = 0;
             stats.last_ts = ts;
-            self.metric_sender.send_now(MessageId::TxQueueCount, Value::Float(stats.len as f32)).unwrap();
+            self.metric_sender.send_now(MessageId::TxQueueCount, Value::Uint64(stats.len as u64)).unwrap();
             self.metric_sender.send_now(MessageId::TxInPerSec, Value::Float(stats.metrics_in_per_sec as f32)).unwrap();
             self.metric_sender.send_now(MessageId::TxOutPerSec, Value::Float(stats.metrics_out_per_sec as f32)).unwrap();
         }

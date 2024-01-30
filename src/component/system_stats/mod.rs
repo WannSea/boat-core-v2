@@ -1,6 +1,6 @@
 use log::{info, error};
 use systemstat::{saturating_sub_bytes, Duration, System, Platform};
-use wannsea_types::MessageId;
+use wannsea_types::{Floats, MessageId};
 use wannsea_types::boat_core_message::Value;
 use crate::{helper::{MetricSender, MetricSenderExt}, SETTINGS};
 
@@ -73,10 +73,7 @@ impl SystemStats {
             }
             if SETTINGS.get::<bool>("system.cpu_freq").unwrap() {
                 let freqs = cpu_freq::get();
-                metric_sender.send_now(MessageId::CpuFreq1, Value::Float(freqs[0].cur.unwrap())).unwrap();
-                metric_sender.send_now(MessageId::CpuFreq2, Value::Float(freqs[1].cur.unwrap())).unwrap();
-                metric_sender.send_now(MessageId::CpuFreq3, Value::Float(freqs[2].cur.unwrap())).unwrap();
-                metric_sender.send_now(MessageId::CpuFreq4, Value::Float(freqs[3].cur.unwrap())).unwrap();
+                metric_sender.send_now(MessageId::CpuFreqs, Value::Floats(Floats { values: freqs.iter().map(|f| f.cur.unwrap()).collect() })).unwrap();
             }
 
             let sleep_duration = Duration::from_millis(SETTINGS.get::<u64>("system.interval").unwrap());

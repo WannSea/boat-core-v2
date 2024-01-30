@@ -75,7 +75,7 @@ impl LTE {
                     "+CME ERROR" => {
                         warn!("CME ERROR: {}", cmds[1]);
                     },
-                    d => warn!("Unknown cmd {:?}", d)
+                    _d => {}
                 }
             }
         });

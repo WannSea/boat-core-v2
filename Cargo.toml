@@ -20,15 +20,12 @@ num-traits = "0.2.16"
 num-derive = "0.4.0"
 tokio-serial = "5.4.1"
 prost = "0.12"
-wannsea_types = { git = "https://github.com/WannSea/type-lib.git" }
-crossbeam-queue = "0.3.8"
 tokio-util = { version = "0.7.9", features = ["codec"] }
-strum = "0.25.0"
-strum_macros = "0.25.3"
 serde_json = "1.0.111"
-eskf = { git = "https://github.com/nordmoen/eskf-rs.git" }
 nalgebra = "0.32.3"
 pbjson-types = "0.6.0"
 chrono = "0.4.31"
 nmea-parser = "0.10.0"
 cpu-freq = "0.0.2"
+wannsea_types = { git = "https://github.com/WannSea/type-lib.git" }
+eskf = { git = "https://github.com/nordmoen/eskf-rs.git" }
