@@ -27,5 +27,5 @@ pbjson-types = "0.6.0"
 chrono = "0.4.31"
 nmea-parser = "0.10.0"
 cpu-freq = "0.0.2"
-wannsea_types = { git = "https://github.com/WannSea/type-lib.git" }
+wannsea_types = { git = "ssh://git@github.com/WannSea/type-lib.git" }
 eskf = { git = "https://github.com/nordmoen/eskf-rs.git" }
