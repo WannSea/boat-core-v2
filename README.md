@@ -17,6 +17,10 @@ In order to reduce complexity this project focuses on a few main features:
 
 All defined metrics can be found in the [type-lib](https://github.com/WannSea/type-lib/) repo which is embedded in this project via cargo.
 
+## Install
+- ``protobuf`` [stack overflow to possible problems](https://stackoverflow.com/questions/56031098/protobuf-timestamp-not-found)
+
+
 ## Deployment
 As we try to deploy every component as a docker image on our RasPi, this repo contains a [build.sh](./build.sh) script which builds the project and pushes the image to our registry. (Cargo needed)
 This is configured to build an arm64 image which is needed for the Pi. Either run it on an arm device like the Pi itself or configure your docker buildx for multi-platform builds.
