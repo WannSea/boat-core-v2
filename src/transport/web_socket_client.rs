@@ -1,7 +1,7 @@
 
 
 use futures::{StreamExt, SinkExt};
-use log::{info, debug};
+use log::{debug, info, warn};
 use tokio_tungstenite::connect_async;
 use wannsea_types::BoatCoreMessage;
 use prost::Message;
@@ -63,8 +63,12 @@ impl WebSocketClient {
             tokio::spawn(async move {
                 let mut receiver = metric_sender.subscribe();
                 loop {
-                    let msg = receiver.recv().await.unwrap();
-                    metric_queue.push(msg).await;
+                    match receiver.recv().await {
+                        Ok(msg) => {
+                            metric_queue.push(msg).await;
+                        },
+                        Err(err) => warn!("Error while receiving from Metric Bus: {:?}", err),
+                    }
                 }
             });
         }

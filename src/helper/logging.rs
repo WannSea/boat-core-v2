@@ -1,4 +1,4 @@
-use log::debug;
+use log::{debug, warn};
 
 use socketcan::EmbeddedFrame;
 use crate::{can::{CanReceiver, get_can_id}, SETTINGS};
@@ -22,8 +22,12 @@ impl Logger {
     pub async fn log_metrics(metric_sender: MetricSender) {
         let mut metric_receiver = metric_sender.subscribe();
         loop { 
-            let metric = metric_receiver.recv().await.unwrap();
-            debug!(target: "Metric", "{} {:?}", metric.id().as_str_name(), metric.value.unwrap());
+            match metric_receiver.recv().await {
+                Ok(metric) => {
+                    debug!(target: "Metric", "{} {:?}", metric.id().as_str_name(), metric.value.unwrap());
+                },
+                Err(err) => warn!("Error while receiving from Metric Bus: {:?}", err),
+            }
         }
     }
 

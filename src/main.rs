@@ -26,7 +26,7 @@ async fn main() {
     SimpleLogger::new().with_level(log::LevelFilter::Debug).init().unwrap();
 
     // Metric bus
-    let (metric_sender, _metric_receiver) = broadcast::channel::<BoatCoreMessage>(16);
+    let (metric_sender, _metric_receiver) = broadcast::channel::<BoatCoreMessage>(64);
 
     let can = CAN::start();
 

@@ -1,5 +1,5 @@
 use futures::{StreamExt, SinkExt};
-use log::{info, error};
+use log::{error, info, warn};
 use tokio::{net::{TcpListener, TcpStream}, io::{AsyncRead, AsyncWrite}};
 use tokio_tungstenite::{tungstenite::{Message, self, handshake::server::{Request, Response, ErrorResponse}}, WebSocketStream};
 use wannsea_types::BoatCoreMessage;
@@ -28,12 +28,18 @@ async fn handle_client(path: String, stream: WebSocketStream<TcpStream>, metric_
     let mut receiver = metric_bus.subscribe();
     tokio::spawn(async move {
         loop {
-            let msg: BoatCoreMessage = receiver.recv().await.unwrap();
 
-            if path.to_lowercase() == "/" || msg.id().as_str_name() == &path[1..] {
-                let json = serde_json::to_string(&msg).unwrap();
-                out.send(Message::Text(json)).await.unwrap();
+            match receiver.recv().await {
+                Ok(msg) => {
+                    if path.to_lowercase() == "/" || msg.id().as_str_name() == &path[1..] {
+                        let json = serde_json::to_string(&msg).unwrap();
+                        out.send(Message::Text(json)).await.unwrap();
+                    }
+                },
+                Err(err) => warn!("Error while receiving from Metric Bus: {:?}", err),
             }
+
+          
         }
     });
 
