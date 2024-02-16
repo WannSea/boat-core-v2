@@ -27,7 +27,7 @@ cpu_usage = true
 cpu_freq = true
 uptime = true
 network = true
-network_if = "usb0"
+network_if = "auto"
 
 [bms]
 enabled = true

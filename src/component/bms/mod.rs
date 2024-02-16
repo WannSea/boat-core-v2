@@ -29,6 +29,7 @@ impl BMS {
             info!("BMS enabled!");
             
             let (notifier, receiver) = mpsc::channel::<BatteryPack>(16);
+            println!("Receiver count: {}", self.can_sender.receiver_count());
             tokio::spawn(BmsMainThread::start(self.can_sender.clone(), receiver));
             tokio::spawn(BmsReadThread::start(self.can_receiver.clone(), self.metric_sender.clone(), notifier));
         }
