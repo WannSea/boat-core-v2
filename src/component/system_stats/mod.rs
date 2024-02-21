@@ -1,4 +1,4 @@
-use log::{info, error};
+use log::{info, error, warn};
 use systemstat::{saturating_sub_bytes, Duration, System, Platform};
 use wannsea_types::{Floats, MessageId};
 use wannsea_types::boat_core_message::Value;
@@ -12,11 +12,28 @@ impl SystemStats {
     pub fn new(metric_sender: MetricSender) -> Self {
         SystemStats { metric_sender }
     }
-
+    
     pub async fn collect_stats(metric_sender: MetricSender) {
-        loop {
+        let sys = System::new();
+        let mut network_if = SETTINGS.get::<String>("system.network_if").unwrap(); 
+        if network_if == "auto" {
+            match sys.networks() {
+                Ok(networks) => {
+                    // Prefer usb0 (LTE Module)
+                    if let Some(_net) = networks.get("usb0") {
+                        network_if = String::from("usb0");
+                    }
+                    // If not present, just choose first interface available
+                    else if let Some((if_name, _net)) = networks.first_key_value() {
+                        network_if = String::from(if_name);
+                    }
+                    info!("Chose Network {} automatically!", network_if);
+                },
+                Err(e) => warn!("Could not automatically define network interface: {:?}", e),
+            }
+        }
 
-            let sys = System::new();
+        loop {
         
             if SETTINGS.get::<bool>("system.memory").unwrap() {
                 match sys.memory() {
@@ -39,7 +56,6 @@ impl SystemStats {
             }
         
             if SETTINGS.get::<bool>("system.network").unwrap() {
-                let network_if = SETTINGS.get::<String>("system.network_if").unwrap();
                 match sys.network_stats(&network_if) {
                     Ok(stats) => {
                        // ToDo: Report Network Traffic
@@ -73,7 +89,7 @@ impl SystemStats {
             }
             if SETTINGS.get::<bool>("system.cpu_freq").unwrap() {
                 let freqs = cpu_freq::get();
-                metric_sender.send_now(MessageId::CpuFreqs, Value::Floats(Floats { values: freqs.iter().map(|f| f.cur.unwrap()).collect() })).unwrap();
+                metric_sender.send_now(MessageId::CpuFreqs, Value::Floats(Floats { values: freqs.iter().map(|f| f.cur.unwrap_or(-1.0)).collect() })).unwrap();
             }
 
             let sleep_duration = Duration::from_millis(SETTINGS.get::<u64>("system.interval").unwrap());
