@@ -1,7 +1,7 @@
 #!/bin/bash
-# Note: In order to build for our Raspberry Pi you need to run this on an arm64 device!
+# Docker Build script for arm64 target
 cargo update
-cargo build --release
+cargo build --release --target aarch64-unknown-linux-gnu
 
 VERSION=$(cargo metadata --format-version=1 --no-deps | jq -r '.packages[0].version')
 
