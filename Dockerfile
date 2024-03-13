@@ -1,4 +1,4 @@
-FROM rust:latest
+FROM rust:1.76.0-slim-bookworm
 
 WORKDIR /usr/src/boat-core-v2
 
