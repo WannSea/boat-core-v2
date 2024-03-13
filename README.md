@@ -25,6 +25,7 @@ All defined metrics can be found in the [type-lib](https://github.com/WannSea/ty
 As we try to deploy every component as a docker image on our RasPi, this repo contains a [build.sh](./build.sh) script which builds the project and pushes the image to our registry. (Cargo needed)
 This is configured to build an arm64 image which is needed for the Pi. Either run it on an arm device like the Pi itself or configure your docker buildx for multi-platform builds.
 To update the app on the Pi run `docker compose pull`
+**Note: The Dockerfile uses build artifacts from the host machine as cargo caching in Dockerfiles is still under development. Therefore you also need to add the aarch64 target to your rust installation by running `rustup target add aarch64-unknown-linux-gnu`**
 
 ## Run project
 You need to have Rustc and Cargo installed. The easiest method is using [Rustup](https://rustup.rs/).
