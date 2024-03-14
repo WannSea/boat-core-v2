@@ -1,4 +1,4 @@
-FROM rust:1.76.0-slim-bookworm
+FROM debian:bookworm-slim
 
 WORKDIR /usr/src/boat-core-v2
 
