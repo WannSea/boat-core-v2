@@ -29,3 +29,4 @@ nmea-parser = "0.10.0"
 cpu-freq = "0.0.2"
 wannsea_types = { git = "ssh://git@github.com/WannSea/type-lib.git" }
 eskf = { git = "https://github.com/nordmoen/eskf-rs.git" }
+bno080 = "0.1.3"
