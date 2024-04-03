@@ -25,6 +25,9 @@ lazy_static! {
 async fn main() {
     SimpleLogger::new().with_level(log::LevelFilter::Debug).init().unwrap();
 
+    const VERSION: &str = env!("CARGO_PKG_VERSION");
+    println!("Starting Boat Core v{}", VERSION);
+
     // Metric bus
     let (metric_sender, _metric_receiver) = broadcast::channel::<BoatCoreMessage>(64);
 

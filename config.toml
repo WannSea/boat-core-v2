@@ -13,8 +13,8 @@ address = "0.0.0.0:8080"
 
 [ws-client]
 enabled = true
-retry_timeout = 60000
-address = "ws://127.0.0.1:8000"
+retry_timeout = 1000
+address = "ws://192.168.64.1:8000"
 
 # Metric components
 [system]
