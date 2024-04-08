@@ -33,7 +33,9 @@ async fn handle_client(path: String, stream: WebSocketStream<TcpStream>, metric_
                 Ok(msg) => {
                     if path.to_lowercase() == "/" || msg.id().as_str_name() == &path[1..] {
                         let json = serde_json::to_string(&msg).unwrap();
-                        out.send(Message::Text(json)).await.unwrap();
+                        if let Err(err) = out.send(Message::Text(json)).await {
+                            error!("Error when sending {}", err);
+                        }
                     }
                 },
                 Err(err) => warn!("Error while receiving from Metric Bus: {:?}", err),

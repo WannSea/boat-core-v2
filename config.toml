@@ -1,6 +1,6 @@
 [logging]
 can = true
-metrics = true
+metrics = false
 
 [can]
 enabled = true
@@ -27,7 +27,7 @@ cpu_usage = true
 cpu_freq = true
 uptime = true
 network = true
-network_if = "auto"
+network_if = "wlan0"
 processes = ["boat-core-v2", "firefox", "grafana"] # Dont know about the performance implications, maybe disable it when needed
 #processes = []
 
@@ -48,7 +48,7 @@ enabled = true
 port = "/dev/ttyUSB2"
 
 [imu]
-enabled = false
+enabled = true
 accel_report_interval = 50
 rotation_report_interval = 50
 gyro_report_interval = 50
@@ -56,4 +56,4 @@ metric_update_interval = 50
 
 
 [sensor_fusion]
-enabled = false
+enabled = true
