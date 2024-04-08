@@ -14,7 +14,7 @@ address = "0.0.0.0:8080"
 [ws-client]
 enabled = true
 retry_timeout = 1000
-address = "ws://192.168.64.1:8000"
+address = "ws://wannsea.eu:8000"
 
 # Metric components
 [system]
@@ -28,6 +28,7 @@ cpu_freq = true
 uptime = true
 network = true
 network_if = "auto"
+processes = ["boat-core-v2", "firefox", "grafana"]
 
 [bms]
 enabled = true
@@ -47,3 +48,11 @@ port = "/dev/ttyUSB2"
 
 [imu]
 enabled = true
+accel_report_interval = 50
+rotation_report_interval = 50
+gyro_report_interval = 50
+metric_update_interval = 50
+
+
+[sensor_fusion]
+enabled = false

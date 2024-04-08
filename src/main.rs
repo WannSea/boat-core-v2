@@ -63,5 +63,8 @@ async fn main() {
     let imu: IMU = IMU::new(metric_sender.clone());
     imu.start();
 
+    let sensor_fusion: SensorFusion = SensorFusion::new(metric_sender.clone());
+    sensor_fusion.start();
+
     signal::ctrl_c().await.unwrap();
 }

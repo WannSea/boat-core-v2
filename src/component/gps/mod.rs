@@ -2,7 +2,7 @@ use futures::StreamExt;
 use log::{error, info, warn};
 use tokio_serial::SerialPortBuilderExt;
 use tokio_util::codec::Decoder;
-use wannsea_types::{MessageId, Vector2};
+use wannsea_types::{MessageId};
 use wannsea_types::boat_core_message::Value;
 use crate::{helper::{serial_ext::LineCodec, MetricSender, MetricSenderExt}, SETTINGS};
 use nmea_parser::*;
@@ -37,9 +37,9 @@ impl GPS {
                     sender.send_now(MessageId::GpsSatelliteCount, Value::Uint32(sat_count as u32)).unwrap();
                 }
                 if let Some(gps_pos) = gga.latitude.and_then(|lat| gga.longitude.and_then(|lon| {
-                    Some(Vector2 { x: lat as f32, y: lon as f32 })
+                    Some(vec![lat as f32, lon as f32])
                 })) {
-                    sender.send_now(MessageId::GpsPos, Value::Vector2(gps_pos)).unwrap();
+                    sender.send_now(MessageId::GpsPos, Value::Floats(wannsea_types::Floats{ values: gps_pos })).unwrap();
                 } 
             },
             ParsedMessage::Rmc(rmc) => {
