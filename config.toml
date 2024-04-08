@@ -28,7 +28,8 @@ cpu_freq = true
 uptime = true
 network = true
 network_if = "auto"
-processes = ["boat-core-v2", "firefox", "grafana"]
+processes = ["boat-core-v2", "firefox", "grafana"] # Dont know about the performance implications, maybe disable it when needed
+#processes = []
 
 [bms]
 enabled = true
@@ -47,7 +48,7 @@ enabled = true
 port = "/dev/ttyUSB2"
 
 [imu]
-enabled = true
+enabled = false
 accel_report_interval = 50
 rotation_report_interval = 50
 gyro_report_interval = 50

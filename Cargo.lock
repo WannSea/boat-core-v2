@@ -147,7 +147,7 @@ dependencies = [
 [[package]]
 name = "bno085"
 version = "0.1.0"
-source = "git+https://github.com/WannSea/bno085.git#eda6761b572ef11043c2c7a8dc50777db4ce0939"
+source = "git+https://github.com/WannSea/bno085.git#be8d8830ab35fbebf9442e5b1f0bb7710870da31"
 dependencies = [
  "async-trait",
  "embedded-hal 1.0.0",
@@ -1986,7 +1986,7 @@ checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 [[package]]
 name = "wannsea_types"
 version = "0.1.102"
-source = "git+ssh://git@github.com/WannSea/type-lib.git#cd292fb23734523b5d30069714b69ad94f6cbe0c"
+source = "git+ssh://git@github.com/WannSea/type-lib.git#36bdc8a443900b99990f471252e13f4d8c6fb22f"
 dependencies = [
  "chrono",
  "pbjson",
