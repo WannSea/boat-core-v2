@@ -2,7 +2,7 @@ use crate::{
     helper::{MetricSender, MetricSenderExt},
     SETTINGS,
 };
-use bno085::{bno_driver::BnoDriver, bno_packet::ChannelCommandData};
+use bno085::{bno_constants::SENSOR_REPORTID_LINEAR_ACCEL, bno_driver::BnoDriver, bno_packet::ChannelCommandData};
 use bno085::{
     bno_constants::{
         SENSOR_REPORTID_ACCEL, SENSOR_REPORTID_GYRO_CALIBRATED, SENSOR_REPORTID_ROTATION_VECTOR,
@@ -51,13 +51,13 @@ impl IMU {
                                     accel_interval - 1,
                                 )
                                 .unwrap();
-                            driver
-                                .enable_report(
-                                    SENSOR_REPORTID_ROTATION_VECTOR,
-                                    rotation_interval,
-                                    rotation_interval - 1,
-                                )
-                                .unwrap();
+                            // driver
+                            //     .enable_report(
+                            //         SENSOR_REPORTID_ROTATION_VECTOR,
+                            //         rotation_interval,
+                            //         rotation_interval - 1,
+                            //     )
+                            //     .unwrap();
                             driver
                                 .enable_report(
                                     SENSOR_REPORTID_GYRO_CALIBRATED,
@@ -73,9 +73,9 @@ impl IMU {
                     bno085::bno_packet::BnoPacket::SensorReports(reports) => {
                         for report in reports {
                             match report {
-                                bno085::bno_packet::SensorReportData::Acceleration(d) => metric_sender.send_now(MessageId::Acceleration, Value::Floats(Floats{ values: d.get_vec() })).unwrap(),
-                                bno085::bno_packet::SensorReportData::Rotation(d) => metric_sender.send_now(MessageId::Rotation, Value::Floats(Floats{ values: d.get_vec() })).unwrap(),
-                                bno085::bno_packet::SensorReportData::GyroCalibrated(d) => metric_sender.send_now(MessageId::Gyro, Value::Floats(Floats{ values: d.get_vec() })).unwrap(),
+                                bno085::bno_packet::SensorReportData::Acceleration(d) => metric_sender.send_now(MessageId::ImuAcceleration, Value::Floats(Floats{ values: d.get_vec() })).unwrap(),
+                                bno085::bno_packet::SensorReportData::Rotation(d) => metric_sender.send_now(MessageId::ImuRotation, Value::Floats(Floats{ values: d.get_vec() })).unwrap(),
+                                bno085::bno_packet::SensorReportData::GyroCalibrated(d) => metric_sender.send_now(MessageId::ImuGyro, Value::Floats(Floats{ values: d.get_vec() })).unwrap(),
                                 d => {
                                     warn!("Unknown Sensor Data {:?}", d);
                                     0 as usize

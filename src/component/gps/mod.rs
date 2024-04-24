@@ -1,5 +1,5 @@
 use futures::StreamExt;
-use log::{error, info, warn};
+use log::{debug, error, info, warn};
 use tokio_serial::SerialPortBuilderExt;
 use tokio_util::codec::Decoder;
 use wannsea_types::{MessageId};
@@ -31,7 +31,7 @@ impl GPS {
                 //debug!("vtg: {:?}", vtg);
             },
             ParsedMessage::Gga(gga) => {
-                // debug!("gga: {:?}", gga);
+                //debug!("gga: {:?}", gga);
                 // Lat lon sat count 
                 if let Some(sat_count) = gga.satellite_count {
                     sender.send_now(MessageId::GpsSatelliteCount, Value::Uint32(sat_count as u32)).unwrap();

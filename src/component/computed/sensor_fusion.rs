@@ -21,9 +21,9 @@ impl SensorFusion {
         // https://www.ceva-ip.com/wp-content/uploads/2019/10/BNO080_085-Datasheet.pdf
         // Chapter 6.7
         let mut filter = eskf::Builder::new()
-        .rotation_variance(0.541052)
-        .acceleration_variance(0.3)
-        .initial_covariance(1e-1)
+        // .rotation_variance(0.541052)
+        // .acceleration_variance(0.3)
+        //.initial_covariance(1e-1)
         .build();
 
         let mut last_update_ns: u128 = 0;
@@ -46,7 +46,7 @@ impl SensorFusion {
                     _ => warn!("GPS unexpected Data format")
                 }
             }
-            else if metric.id == MessageId::Acceleration {
+            else if metric.id == MessageId::ImuAcceleration {
                 match metric.value.unwrap() {
                     Value::Floats(floats) => {
                         imu_acceleration[0] = floats.values[0];
@@ -56,7 +56,7 @@ impl SensorFusion {
                     _ => warn!("Acceleration unexpected metric format")
                 }
             }
-            else if metric.id == MessageId::Gyro {
+            else if metric.id == MessageId::ImuGyro {
                 match metric.value.as_ref().unwrap() {
                     Value::Floats(floats) => {
                         imu_rotation[0] = floats.values[0];
