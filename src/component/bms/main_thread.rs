@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use log::{debug, error, trace, warn};
-use num_traits::ToBytes;
 use socketcan::{StandardId, CanFrame, EmbeddedFrame, ExtendedId};
 use crate::{can::CanSender, component::bms::structs::EmsRequest, SETTINGS, helper::get_ts_ms};
 
