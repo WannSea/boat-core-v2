@@ -147,7 +147,7 @@ dependencies = [
 [[package]]
 name = "bno085"
 version = "0.1.0"
-source = "git+https://github.com/WannSea/bno085.git#be8d8830ab35fbebf9442e5b1f0bb7710870da31"
+source = "git+ssh://git@github.com/WannSea/bno085.git#be8d8830ab35fbebf9442e5b1f0bb7710870da31"
 dependencies = [
  "async-trait",
  "embedded-hal 1.0.0",
