@@ -1,0 +1,10 @@
+[Unit]
+Description=WannSea boat-core-v2
+
+[Service]
+TimeoutStartSec=30
+Restart=no
+ExecStart=/home/wannsea/git/boat-core-v2/target/aarch64-unknown-linux-gnu/release/boat-core-v2
+
+[Install]
+WantedBy=multi-user.target
