@@ -2,7 +2,7 @@ mod helper;
 mod can;
 mod transport;
 mod component;
-use component::{system_stats::SystemStats, pmu::PMU, gps::GPS, lte::LTE, computed::sensor_fusion::SensorFusion, imu::IMU};
+use component::{computed::sensor_fusion::SensorFusion, gps::GPS, imu::IMU, lte::LTE, pmu::PMU, system_stats::SystemStats, vesc::{self, VESC}};
 use config::Config;
 
 
@@ -65,6 +65,9 @@ async fn main() {
 
     let sensor_fusion: SensorFusion = SensorFusion::new(metric_sender.clone());
     sensor_fusion.start();
+
+    let vesc: VESC = VESC::new(can.sender.clone(), can.receiver.clone(), metric_sender.clone());
+    vesc.start();
 
     signal::ctrl_c().await.unwrap();
 }

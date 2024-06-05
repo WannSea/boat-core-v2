@@ -3,5 +3,11 @@
         "./Cargo.toml",
         "./Cargo.toml",
         "./Cargo.toml"
+    ],
+    "cSpell.words": [
+        "socketcan",
+        "tokio",
+        "vesc",
+        "Vesc"
     ]
 }

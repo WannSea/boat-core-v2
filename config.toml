@@ -6,6 +6,9 @@ metrics = true
 enabled = true
 interface = "vcan0"
 
+[vesc]
+enabled = true
+id = 22
 # Transport protocols
 [ws-server]
 enabled = true
