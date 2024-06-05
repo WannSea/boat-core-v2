@@ -1,4 +1,7 @@
 
+use std::fmt::Debug;
+
+use log::debug;
 use num_derive::FromPrimitive;
 use wannsea_types::{boat_core_message::Value, MessageId};
 
@@ -36,12 +39,13 @@ pub enum VescMessageIds {
     Status5 = 27,
 }
 
-pub trait CanMessage: Sized {
+pub trait CanMessage: Sized + Debug {
     fn from_can_data(data: &[u8]) -> Self;
     async fn send_metrics(&self, metric_sender: &MetricSender);
     fn parse_and_send(data: &[u8], metric_sender: &MetricSender) {
         let metrics = Self::from_can_data(data);
-        metrics.send_metrics(metric_sender);
+        debug!("Recieved VESC Metric: {:?}", metrics);
+        let _ = metrics.send_metrics(metric_sender);
     }
 }
 
@@ -62,9 +66,9 @@ impl CanMessage for StatusMsg1 {
     }
 
     async fn send_metrics(&self, metric_sender: &MetricSender) {
-        metric_sender.send_now(MessageId::EscRpm, Value::Int32(self.rpm));
-        metric_sender.send_now(MessageId::EscTotalCurrent, Value::Float(self.total_current));
-        metric_sender.send_now(MessageId::EscDutyCycle, Value::Float(self.duty_cycle));
+        let _ = metric_sender.send_now(MessageId::EscRpm, Value::Int32(self.rpm));
+        let _ = metric_sender.send_now(MessageId::EscTotalCurrent, Value::Float(self.total_current));
+        let _ = metric_sender.send_now(MessageId::EscDutyCycle, Value::Float(self.duty_cycle));
     }
 }
 
@@ -83,8 +87,8 @@ impl CanMessage for StatusMsg2 {
     }
 
     async fn send_metrics(&self, metric_sender: &MetricSender) {
-        metric_sender.send_now(MessageId::EscAmpHours, Value::Float(self.amp_hours));
-        metric_sender.send_now(MessageId::EscAmpHoursCharged, Value::Float(self.amp_hours_charged));
+        let _ = metric_sender.send_now(MessageId::EscAmpHours, Value::Float(self.amp_hours));
+        let _ = metric_sender.send_now(MessageId::EscAmpHoursCharged, Value::Float(self.amp_hours_charged));
     }
 }
 
@@ -103,8 +107,8 @@ impl CanMessage for StatusMsg3 {
     }
 
     async fn send_metrics(&self, metric_sender: &MetricSender) {
-        metric_sender.send_now(MessageId::EscWattHours, Value::Float(self.watt_hours));
-        metric_sender.send_now(MessageId::EscWattHoursCharged, Value::Float(self.watt_hours_charged));
+        let _ = metric_sender.send_now(MessageId::EscWattHours, Value::Float(self.watt_hours));
+        let _ = metric_sender.send_now(MessageId::EscWattHoursCharged, Value::Float(self.watt_hours_charged));
     }
 }
 
@@ -127,10 +131,10 @@ impl CanMessage for StatusMsg4 {
     }
 
     async fn send_metrics(&self, metric_sender: &MetricSender) {
-        metric_sender.send_now(MessageId::EscMosfetTemp, Value::Float(self.mosfet_temp));
-        metric_sender.send_now(MessageId::EscMotorTemp, Value::Float(self.motor_temp));
-        metric_sender.send_now(MessageId::EscTotalInCurrent, Value::Float(self.total_in_cur));
-        metric_sender.send_now(MessageId::EscPidPos, Value::Float(self.pid_pos));
+        let _ = metric_sender.send_now(MessageId::EscMosfetTemp, Value::Float(self.mosfet_temp));
+        let _ = metric_sender.send_now(MessageId::EscMotorTemp, Value::Float(self.motor_temp));
+        let _ = metric_sender.send_now(MessageId::EscTotalInCurrent, Value::Float(self.total_in_cur));
+        let _ = metric_sender.send_now(MessageId::EscPidPos, Value::Float(self.pid_pos));
     }
 }
 
@@ -149,7 +153,7 @@ impl CanMessage for StatusMsg5 {
     }
 
     async fn send_metrics(&self, metric_sender: &MetricSender) {
-        metric_sender.send_now(MessageId::EscTachometer, Value::Int32(self.tachometer));
-        metric_sender.send_now(MessageId::EscInVoltage, Value::Float(self.in_voltage));
+        let _ = metric_sender.send_now(MessageId::EscTachometer, Value::Int32(self.tachometer));
+        let _ = metric_sender.send_now(MessageId::EscInVoltage, Value::Float(self.in_voltage));
     }
 }
