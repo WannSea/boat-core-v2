@@ -52,8 +52,8 @@ impl CAN {
     }
 
     pub fn start() -> Self {
-        let (receiver, _receiver_rx) = broadcast::channel::<CanFrame>(16);
-        let (sender, _sender_rx) = broadcast::channel::<CanFrame>(16);
+        let (receiver, _receiver_rx) = broadcast::channel::<CanFrame>(64);
+        let (sender, _sender_rx) = broadcast::channel::<CanFrame>(64);
         
         if SETTINGS.get::<bool>("can.enabled").unwrap() {
             info!("CAN enabled!");

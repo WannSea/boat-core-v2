@@ -42,11 +42,11 @@ impl VescReadThread {
             let msg_id = can_id >> 8;
 
             match VescMessageIds ::from_u32(msg_id) {
-                Some(VescMessageIds::Status1) => StatusMsg1::parse_and_send(data, &self.metric_sender),
-                Some(VescMessageIds::Status2) => StatusMsg2::parse_and_send(data, &self.metric_sender),
-                Some(VescMessageIds::Status3) => StatusMsg3::parse_and_send(data, &self.metric_sender),
-                Some(VescMessageIds::Status4) => StatusMsg4::parse_and_send(data, &self.metric_sender),
-                Some(VescMessageIds::Status5) => StatusMsg5::parse_and_send(data, &self.metric_sender),
+                Some(VescMessageIds::Status1) => StatusMsg1::parse_and_send(data, &self.metric_sender).await,
+                Some(VescMessageIds::Status2) => StatusMsg2::parse_and_send(data, &self.metric_sender).await,
+                Some(VescMessageIds::Status3) => StatusMsg3::parse_and_send(data, &self.metric_sender).await,
+                Some(VescMessageIds::Status4) => StatusMsg4::parse_and_send(data, &self.metric_sender).await,
+                Some(VescMessageIds::Status5) => StatusMsg5::parse_and_send(data, &self.metric_sender).await,
                 _ => {
                     warn!("Unknown VESC Message ID: {}", msg_id);
                 }
