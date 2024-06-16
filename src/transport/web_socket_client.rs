@@ -25,15 +25,16 @@ impl WebSocketClient {
             debug!("Trying to connect to ws...");
             let addr = SETTINGS.get::<String>("ws-client.address").unwrap().to_string();
             let retry_timeout = SETTINGS.get::<u64>("ws-client.retry_timeout").unwrap();
-            let res = connect_async(&addr).await;
+            let timeout_dur = tokio::time::Duration::from_millis(retry_timeout);
+            let res = tokio::time::timeout(timeout_dur, connect_async(&addr)).await;
             if res.is_err() {
                 debug!("Could not reach the WebSocket server at {}. Retrying in {} ms...", &addr, retry_timeout);
-                tokio::time::sleep(tokio::time::Duration::from_millis(retry_timeout)).await;
+                tokio::time::sleep(timeout_dur).await;
                 continue;
             }
             info!("WebSocket handshake has been successfully completed");
 
-            let (mut write, _read) = res.unwrap().0.split();
+            let (mut write, _read) = res.unwrap().unwrap().0.split();
             
             loop {
                 let msg: BoatCoreMessage = metric_queue.pop().await;

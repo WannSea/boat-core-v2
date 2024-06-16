@@ -1,5 +1,5 @@
 [logging]
-can = false
+can = true
 metrics = true
 
 [can]
@@ -14,7 +14,7 @@ address = "0.0.0.0:8080"
 [ws-client]
 enabled = true
 retry_timeout = 1000
-address = "ws://wannsea.eu:8000"
+address = "ws://10.13.138000"
 
 # Metric components
 [system]
