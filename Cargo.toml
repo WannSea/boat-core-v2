@@ -34,3 +34,5 @@ rppal = { version = "0.17.1", features = ["hal"] }
 embedded-hal = "1.0.0"
 quaternion-core = "0.5.0"
 sysinfo = "0.30.8"
+# geo = { version = "0.28.0", features = ["use-proj"]}
+map_3d = "0.1.5"

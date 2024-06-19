@@ -60,3 +60,5 @@ metric_update_interval = 500
 
 [sensor_fusion]
 enabled = true
+reference_lat = 52.51926166376614
+reference_lon = 13.321894256571971
