@@ -18,15 +18,15 @@ impl BmsMainThread {
     // Request specific individual request for all packs
     fn request_all_packs(&self, battery_packs: &BatteryPacks, function: BmsIndividualRequestFunction) {
         for bat_pack in battery_packs.values() {
-            let id = ((bat_pack.id as u32) << 12) | (EmsRequest::BmsIndividualRequest as u32);
 
             let mut data = Vec::new();
             data.extend(bat_pack.serial_number.to_be_bytes());
             data.extend(vec![0, 0, 0, function as u8]);
-
-            let frame = CanFrame::new(ExtendedId::new(id).unwrap(), &data).unwrap();
+            
+            let can_id = StandardId::new(EmsRequest::BmsIndividualRequest as u16).unwrap();
+            let frame = CanFrame::new(can_id, &data).unwrap();
             match  self.can_sender.send(frame) {
-                Ok(_data) => trace!("Sent individual request with function {:?} for every pack!", function),
+                Ok(_data) => trace!("Sent individual request with function {:?} for pack {} !", function, bat_pack.id),
                 Err(_err) => debug!("Error sending poll bat pack msg")
             }
         }
@@ -38,7 +38,7 @@ impl BmsMainThread {
         let frame = CanFrame::new(id, &[129, 0, 0, 0, 0, 0, 0, 0]).unwrap();
         
         match self.can_sender.send(frame) {
-            Ok(_data) => debug!("Sent serial number acquisition message"),
+            Ok(_data) => trace!("Sent serial number acquisition message"),
             Err(_err) => error!("Error sending ser number can frame")
         }
     }

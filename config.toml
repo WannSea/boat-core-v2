@@ -1,6 +1,6 @@
 [logging]
 can = false
-metrics = true
+metrics = false
 
 [can]
 enabled = true
@@ -51,11 +51,11 @@ enabled = true
 port = "/dev/ttyUSB2"
 
 [imu]
-enabled = false
-accel_report_interval = 500
-rotation_report_interval = 500
-gyro_report_interval = 500
-metric_update_interval = 500
+enabled = true
+accel_report_interval = 100
+rotation_report_interval = 100
+gyro_report_interval = 100
+metric_update_interval = 100
 
 
 [sensor_fusion]
