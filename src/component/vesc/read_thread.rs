@@ -47,6 +47,10 @@ impl VescReadThread {
                 Some(VescMessageIds::Status3) => StatusMsg3::parse_and_send(data, &self.metric_sender).await,
                 Some(VescMessageIds::Status4) => StatusMsg4::parse_and_send(data, &self.metric_sender).await,
                 Some(VescMessageIds::Status5) => StatusMsg5::parse_and_send(data, &self.metric_sender).await,
+                Some(VescMessageIds:: SetDuty) => SetDuty::parse_and_send(data, &self.metric_sender).await,
+                Some(VescMessageIds::SetCurrent) => SetCurrent::parse_and_send(data, &self.metric_sender).await,
+                Some(VescMessageIds::SetRpm) => SetRpm::parse_and_send(data, &self.metric_sender).await,
+                Some(VescMessageIds::SetCurrentRel) => SetRelCurrent::parse_and_send(data, &self.metric_sender).await,
                 _ => {
                     warn!("Unknown VESC Message ID: {}", msg_id);
                 }
