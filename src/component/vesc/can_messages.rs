@@ -39,12 +39,35 @@ pub enum VescMessageIds {
     Status5 = 27,
 }
 
+/// A trait representing a CAN message.
 pub trait CanMessage: Sized + Debug {
+    /// Converts the CAN data into an instance of the implementing type.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - The CAN data as a slice of bytes.
+    ///
+    /// # Returns
+    ///
+    /// An instance of the implementing type.
     fn from_can_data(data: &[u8]) -> Self;
+    
+    /// Sends the metrics to the specified metric sender asynchronously.
+    ///
+    /// # Arguments
+    ///
+    /// * `metric_sender` - The metric sender to send the metrics to.
     async fn send_metrics(&self, metric_sender: &MetricSender);
+    
+    /// Parses the CAN data, sends the metrics, and logs debug information.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - The CAN data as a slice of bytes.
+    /// * `metric_sender` - The metric sender to send the metrics to.
     fn parse_and_send(data: &[u8], metric_sender: &MetricSender) {
         let metrics = Self::from_can_data(data);
-        debug!("Recieved VESC Metric: {:?}", metrics);
+        debug!("Received VESC Metric: {:?}", metrics);
         let _ = metrics.send_metrics(metric_sender);
     }
 }
@@ -155,5 +178,86 @@ impl CanMessage for StatusMsg5 {
     async fn send_metrics(&self, metric_sender: &MetricSender) {
         let _ = metric_sender.send_now(MessageId::EscTachometer, Value::Int32(self.tachometer));
         let _ = metric_sender.send_now(MessageId::EscInVoltage, Value::Float(self.in_voltage));
+    }
+}
+
+#[derive(Debug)]
+/// Command duty cycle of the VESC
+/// - This is direct command of MOSFET PWM modulation
+    pub struct SetDuty {
+    /// - Range -1 to 1
+    duty: f32,
+}
+
+impl CanMessage for SetDuty {
+    fn from_can_data(data: &[u8]) -> Self {
+        SetDuty {
+            duty: (i32::from_be_bytes(data[0..4].try_into().unwrap())) as f32 / 100000.0,
+        }
+    }
+
+    async fn send_metrics(&self, metric_sender: &MetricSender) {
+        let _ = metric_sender.send_now(MessageId::EscSetDuty, Value::Float(self.duty * 100.0));
+    }
+}
+
+
+#[derive(Debug)]
+/// Command a Current in Milliamps
+/// - This is direct command of the current control loops
+pub struct SetCurrent {
+    current: i32,
+}
+
+impl CanMessage for SetCurrent {
+    fn from_can_data(data: &[u8]) -> Self {
+        SetCurrent {
+            current: i32::from_be_bytes(data[0..4].try_into().unwrap()),
+        }
+    }
+
+    async fn send_metrics(&self, metric_sender: &MetricSender) {
+        let _ = metric_sender.send_now(MessageId::EscSetCurrent, Value::Int32(self.current));
+    }
+}
+
+
+#[derive(Debug)]
+/// Command angular velocity in rpm
+/// - This is command of the closed loop PID angular velocity
+pub struct SetRpm {
+    rpm: i32,
+}
+
+impl CanMessage for SetRpm {
+    fn from_can_data(data: &[u8]) -> Self {
+        SetRpm {
+            rpm: i32::from_be_bytes(data[0..4].try_into().unwrap()),
+        }
+    }
+
+    async fn send_metrics(&self, metric_sender: &MetricSender) {
+        let _ = metric_sender.send_now(MessageId::EscSetRpm, Value::Int32(self.rpm));
+    }
+    
+}
+
+#[derive(Debug)]
+/// Command relative current 
+pub struct SetRelCurrent {
+    /// - Range -1 (lower Bound)to 1 (upper Bound)
+    /// - NOTE that if the upper and lower current limits are not symmetric, sending 0 will NOT result in 0 current.
+    current: f32,
+}
+
+impl CanMessage for SetRelCurrent {
+    fn from_can_data(data: &[u8]) -> Self {
+        SetRelCurrent {
+            current: (i32::from_be_bytes(data[0..4].try_into().unwrap())) as f32 / 100000.0,
+        }
+    }
+
+    async fn send_metrics(&self, metric_sender: &MetricSender) {
+        let _ = metric_sender.send_now(MessageId::EscSetCurrentRel, Value::Float(self.current * 100.0));
     }
 }
