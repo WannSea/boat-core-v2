@@ -2,7 +2,7 @@ use eskf;
 use log::{info, warn};
 use nalgebra::{Point3, Vector3};
 use wannsea_types::{boat_core_message::Value, Floats, MessageId};
-use std::time::Duration;
+use std::time::{self, Duration};
 use map_3d::{geodetic2ned, ned2geodetic, Ellipsoid::WGS84};
 
 use crate::{helper::{MetricSender, MetricSenderExt}, SETTINGS};
@@ -16,18 +16,18 @@ impl SensorFusion {
         SensorFusion { metric_sender }
     }
 
-    pub async fn run(metric_sender: MetricSender, gpsConverter: CoordinatesConverter) {
+    pub async fn run(metric_sender: MetricSender, gps_converter: CoordinatesConverter) {
         let mut metric_receiver = metric_sender.subscribe();
 
         // https://www.ceva-ip.com/wp-content/uploads/2019/10/BNO080_085-Datasheet.pdf
         // Chapter 6.7
         let mut filter = eskf::Builder::new()
-        // .rotation_variance(0.541052)
-        // .acceleration_variance(0.3)
-        //.initial_covariance(1e-1)
-        .build();
+            .acceleration_variance(0.3)
+            .rotation_variance(0.541052)
+            .initial_covariance(1e-1)
+            .build();
 
-        let mut last_update_ns: u128 = 0;
+        let mut last_update_ns: u128 = time::SystemTime::now().duration_since(time::SystemTime::UNIX_EPOCH).unwrap().as_nanos() as u128;
         let mut imu_acceleration = Vector3::new(0.0, 0.0, -9.81);
         let mut imu_rotation = Vector3::zeros();
         loop { 
@@ -40,7 +40,7 @@ impl SensorFusion {
                 match metric.value.unwrap() {
                     Value::Floats(floats) => {
                         filter.observe_position(
-                            gpsConverter.gps_to_ned(floats.values[0], floats.values[1]),
+                            gps_converter.gps_to_ned(floats.values[0], floats.values[1]),
                             eskf::ESKF::variance_from_element(0.1))
                                 .expect("Filter update failed");
                     },
@@ -51,7 +51,7 @@ impl SensorFusion {
                 match metric.value.unwrap() {
                     Value::Floats(floats) => {
                         imu_acceleration[0] = floats.values[0];
-                        imu_acceleration[1] = -floats.values[1];
+                        imu_acceleration[1] = floats.values[1];
                         imu_acceleration[2] = floats.values[2];
                     },
                     _ => warn!("Acceleration unexpected metric format")
@@ -70,7 +70,7 @@ impl SensorFusion {
                 filter.predict(imu_acceleration, imu_rotation, Duration::from_nanos((new_ts - last_update_ns) as u64));
                 last_update_ns = new_ts;
 
-                let (lat, lon) = gpsConverter.ned_to_gps(filter.position);
+                let (lat, lon) = gps_converter.ned_to_gps(filter.position);
                 let pos_uncertainty = filter.position_uncertainty();
                 let ori_uncertainty = filter.orientation_uncertainty();
                 let velo_uncertainty = filter.velocity_uncertainty();
