@@ -51,7 +51,7 @@ enabled = true
 port = "/dev/ttyUSB2"
 
 [imu]
-enabled = true
+enabled = false
 accel_report_interval = 100
 rotation_report_interval = 100
 gyro_report_interval = 100

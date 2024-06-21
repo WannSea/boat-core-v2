@@ -53,7 +53,7 @@ impl<T> MetricQueue<T> {
     pub async fn push(&self, e: T) {
         self.sender.send(e).unwrap();
         let mut stats = self.stats.write().unwrap();
-        stats.len += 1;
+        stats.len = self.receiver.lock().await.len();
         stats.metrics_in += 1;
         self.calc_stats(stats);
     }
@@ -61,7 +61,7 @@ impl<T> MetricQueue<T> {
     pub async fn pop(&self) -> T {
         let result = self.receiver.lock().await.recv().await.unwrap();
         let mut stats = self.stats.write().unwrap();
-        stats.len -= 1;
+        stats.len = self.receiver.lock().await.len();
         stats.metrics_out += 1;
         self.calc_stats(stats);
         return result;
