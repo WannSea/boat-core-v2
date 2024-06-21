@@ -10,7 +10,7 @@ use crate::helper::{MetricSender, MetricSenderExt};
 
 #[derive(Clone)]
 pub struct MetricStats {
-    pub len: usize,
+    pub len: i64,
     pub last_ts: u128,
     pub metrics_in_per_sec: f32,
     pub metrics_out_per_sec: f32,
@@ -53,15 +53,17 @@ impl<T> MetricQueue<T> {
     pub async fn push(&self, e: T) {
         self.sender.send(e).unwrap();
         let mut stats = self.stats.write().unwrap();
-        stats.len = self.receiver.lock().await.len();
+        stats.len += 1;
         stats.metrics_in += 1;
         self.calc_stats(stats);
     }
 
     pub async fn pop(&self) -> T {
-        let result = self.receiver.lock().await.recv().await.unwrap();
+        let mut receiver = self.receiver.lock().await;
+        let result = receiver.recv().await.unwrap();
+
         let mut stats = self.stats.write().unwrap();
-        stats.len = self.receiver.lock().await.len();
+        stats.len -= 1;
         stats.metrics_out += 1;
         self.calc_stats(stats);
         return result;
