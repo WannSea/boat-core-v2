@@ -10,6 +10,7 @@ pub enum CanIds {
 
     CanIdMotor1 = 0x142,
     CanIdMotor2 = 0x143,
+    CanIdMotorTemp = 0x144,
 
     //# to power off relays and batterys send 0x1 to power back on send 0x0
     CanIdPowerOff = 0x024,

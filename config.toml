@@ -60,3 +60,6 @@ metric_update_interval = 100
 
 [sensor_fusion]
 enabled = true
+
+[motor_status]
+enabled = true
