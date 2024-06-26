@@ -6,3 +6,4 @@ pub mod system_stats;
 pub mod computed;
 pub mod imu;
 pub mod vesc;
+pub mod motor_status;
