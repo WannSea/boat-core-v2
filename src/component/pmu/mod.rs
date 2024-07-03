@@ -1,5 +1,5 @@
 use log::info;
-use num_traits::FromPrimitive;
+use num_traits::{FromPrimitive, ToPrimitive};
 use socketcan::EmbeddedFrame;
 use wannsea_types::MessageId;
 use wannsea_types::boat_core_message::Value;
@@ -31,8 +31,11 @@ impl PMU {
                 Some(CanIds::CanIdFan2Rpm) => metric_sender.send_now(MessageId::Fan2, Value::Bytes(data)),
                 Some(CanIds::CanIdFan3Rpm) => metric_sender.send_now(MessageId::Fan3, Value::Bytes(data)),
                 Some(CanIds::CanIdFan4Rpm) => metric_sender.send_now(MessageId::Fan4, Value::Bytes(data)),
-                Some(CanIds::CanIdSolarPower) => metric_sender.send_now(MessageId::SolarPower, Value::Bytes(data)),
-                Some(CanIds::CanIdSolarTemp) => metric_sender.send_now(MessageId::SolarTemp, Value::Bytes(data)),
+                Some(CanIds::CanIdSolarPower) => metric_sender.send_now(MessageId::SolarPower, Value::Uint32(u32::from_be_bytes(data[0..4].try_into().unwrap()))),
+                Some(CanIds::CanIdSolarTemp) => metric_sender.send_now(MessageId::SolarTemp, Value::Float(i16::from_be_bytes(data[0..2].try_into().unwrap()).to_f32().unwrap() * 0.01)),
+                Some(CanIds::CanIdPCSTemp) => metric_sender.send_now(MessageId::PcsTemp, Value::Float(i16::from_be_bytes(data[0..2].try_into().unwrap()).to_f32().unwrap() * 0.01)),
+                Some(CanIds::CanIdLPMainPower) => metric_sender.send_now(MessageId::LpMainPower, Value::Uint32(u16::from_be_bytes(data[0..2].try_into().unwrap()).to_u32().unwrap())),
+                
                 _x => Ok(0)
             };
 

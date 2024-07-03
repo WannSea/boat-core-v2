@@ -1,4 +1,4 @@
-use log::{warn};
+use log::{debug, warn};
 use num_traits::FromPrimitive;
 use socketcan::EmbeddedFrame;
 
@@ -26,11 +26,11 @@ impl VescReadThread {
         loop {
             let frame = receiver.recv().await.unwrap();
 
-            if frame.dlc() != 8 {
-                // VESC Messages will always have 8 bytes
-                // therefore we can skip to the next frame
-                continue;
-            }
+            // if frame.dlc() != 8 {
+            //     // VESC Messages will always have 8 bytes
+            //     // therefore we can skip to the next frame
+            //     continue;
+            // }
 
             let can_id = get_can_id(frame.id());
             let is_vesc_id = can_id & 0xFF == self.vesc_id;

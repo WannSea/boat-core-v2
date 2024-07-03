@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use log::{debug, error, trace};
+use num_traits::ToPrimitive;
 use socketcan::{StandardId, CanFrame, EmbeddedFrame, ExtendedId};
 use crate::{can::CanSender, component::bms::structs::EmsRequest, SETTINGS, helper::get_ts_ms};
 
@@ -16,7 +17,8 @@ pub struct BmsMainThread {
 // Write Methods
 impl BmsMainThread {
     // Request specific individual request for all packs
-    fn request_all_packs(&self, battery_packs: &BatteryPacks, function: BmsIndividualRequestFunction) {
+    async fn request_all_packs(&self, battery_packs: &BatteryPacks, function: BmsIndividualRequestFunction) {
+        let request_interval = SETTINGS.get::<u64>("bms.request_interval").unwrap();
         for bat_pack in battery_packs.values() {
 
             let mut data = Vec::new();
@@ -29,6 +31,7 @@ impl BmsMainThread {
                 Ok(_data) => trace!("Sent individual request with function {:?} for pack {} !", function, bat_pack.id),
                 Err(_err) => debug!("Error sending poll bat pack msg")
             }
+            tokio::time::sleep(tokio::time::Duration::from_millis(request_interval)).await;
         }
     }
 
@@ -36,16 +39,19 @@ impl BmsMainThread {
     async fn aquire_serial_number(&self) {
         let id = StandardId::new(EmsRequest::BmsGeneralRequest as u16).unwrap();
         let frame = CanFrame::new(id, &[129, 0, 0, 0, 0, 0, 0, 0]).unwrap();
+        let request_interval = SETTINGS.get::<u64>("bms.request_interval").unwrap();
         
         match self.can_sender.send(frame) {
             Ok(_data) => trace!("Sent serial number acquisition message"),
             Err(_err) => error!("Error sending ser number can frame")
         }
+        tokio::time::sleep(tokio::time::Duration::from_millis(request_interval)).await;
+
     }
 
     async fn start_bms_communication_run(&self, mut pack_receiver: BatteryPackReceiver) {
         let mut battery_packs: BatteryPacks = HashMap::new();
-        let request_interval = SETTINGS.get::<u64>("bms.request_interval").unwrap();
+
         let bms_search_interval = SETTINGS.get::<u64>("bms.search_interval").unwrap();
 
         let mut last_searched: u128 = 0;
@@ -57,12 +63,8 @@ impl BmsMainThread {
                     battery_packs.insert(pack.id, pack);
                 }
             }
-
-            tokio::time::sleep(tokio::time::Duration::from_millis(request_interval / 2)).await;
-            self.request_all_packs(&battery_packs, BmsIndividualRequestFunction::AllMeasurements);
-            tokio::time::sleep(tokio::time::Duration::from_millis(request_interval / 2)).await;
-            self.request_all_packs(&battery_packs, BmsIndividualRequestFunction::InternalStatus1);
-
+            self.request_all_packs(&battery_packs, BmsIndividualRequestFunction::AllMeasurements).await;
+            self.request_all_packs(&battery_packs, BmsIndividualRequestFunction::InternalStatus1).await;
             if get_ts_ms() - last_searched > bms_search_interval as u128 {
                 self.aquire_serial_number().await;
                 last_searched = get_ts_ms();

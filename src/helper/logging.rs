@@ -15,7 +15,7 @@ impl Logger {
         let mut can_receiver = can_receiver.subscribe();
         loop {
             let frame = can_receiver.recv().await.unwrap();
-            debug!(target: "CAN", "ID: {} LEN: {} DATA: {:X?}", get_can_id(frame.id()), frame.dlc(), frame.data());
+            debug!(target: "CAN", "ID: {:X?} LEN: {} DATA: {:X?}", get_can_id(frame.id()), frame.dlc(), frame.data());
         }
     }
     

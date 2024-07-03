@@ -3,6 +3,7 @@ use std::fmt::Debug;
 
 use log::debug;
 use num_derive::FromPrimitive;
+use num_traits::ToPrimitive;
 use wannsea_types::{boat_core_message::Value, MessageId};
 
 use crate::helper::{MetricSender, MetricSenderExt};
@@ -51,19 +52,18 @@ pub trait CanMessage: Sized + Debug {
 
 #[derive(Debug)]
 pub struct SetDutyMsg {
-    duty_cycle: f32
+    duty_cycle: i32
 }
 
 impl CanMessage for SetDutyMsg {
     fn from_can_data(data: &[u8]) -> Self {
         SetDutyMsg {
-            duty_cycle: f32::from(i16::from_be_bytes(data[0..4].try_into().unwrap())) / 10.0,
+            duty_cycle: i32::from_be_bytes(data[0..4].try_into().unwrap()),
         }
     }
 
     async fn send_metrics(&self, metric_sender: &MetricSender) {
-        let _ = metric_sender.send_now(MessageId::ThrottlePos, Value::Float(self.duty_cycle)).unwrap();
-        debug!("Here");
+        let _ = metric_sender.send_now(MessageId::ThrottlePos, Value::Float(self.duty_cycle.to_f32().unwrap() / 100000.0f32)).unwrap();
     }
 }
 

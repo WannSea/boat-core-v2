@@ -17,6 +17,11 @@ pub enum CanIds {
     CanIdApmuTemp = 0x700,
     CanIdMpmuTemp = 0x702,
 
+    CanIdPCSTemp = 0x724,
+    CanIdLPMainPower = 0x726,
+
+
+
     // BMS RESERVED 0x8XX range
 
     CanIdFan1Rpm = 0x710,

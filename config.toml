@@ -1,6 +1,6 @@
 [logging]
 can = false
-metrics = false
+metrics = true
 
 [can]
 enabled = true
@@ -35,8 +35,8 @@ processes = ["boat-core-v2", "firefox", "grafana"] # Dont know about the perform
 #processes = []
 
 [bms]
-enabled = true
-request_interval = 1000
+enabled = false
+request_interval = 50
 search_interval = 10000
 
 [pmu]
