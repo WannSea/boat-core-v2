@@ -44,9 +44,26 @@ pub trait CanMessage: Sized + Debug {
     async fn send_metrics(&self, metric_sender: &MetricSender);
     async fn parse_and_send(data: &[u8], metric_sender: &MetricSender) {
         let metrics = Self::from_can_data(data);
-        debug!("Received VESC Metric: {:?}", metrics);
         let _ = metrics.send_metrics(metric_sender).await;
 
+    }
+}
+
+#[derive(Debug)]
+pub struct SetDutyMsg {
+    duty_cycle: f32
+}
+
+impl CanMessage for SetDutyMsg {
+    fn from_can_data(data: &[u8]) -> Self {
+        SetDutyMsg {
+            duty_cycle: f32::from(i16::from_be_bytes(data[0..4].try_into().unwrap())) / 10.0,
+        }
+    }
+
+    async fn send_metrics(&self, metric_sender: &MetricSender) {
+        let _ = metric_sender.send_now(MessageId::ThrottlePos, Value::Float(self.duty_cycle)).unwrap();
+        debug!("Here");
     }
 }
 
@@ -70,7 +87,6 @@ impl CanMessage for StatusMsg1 {
         let _ = metric_sender.send_now(MessageId::EscRpm, Value::Int32(self.rpm)).unwrap();
         let _ = metric_sender.send_now(MessageId::EscTotalCurrent, Value::Float(self.total_current)).unwrap();
         let _ = metric_sender.send_now(MessageId::EscDutyCycle, Value::Float(self.duty_cycle)).unwrap();
-        debug!("Here");
     }
 }
 
