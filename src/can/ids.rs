@@ -5,8 +5,8 @@ use num_derive::FromPrimitive;
 pub enum CanIds {
     CanIdMostImportant=0x000,
 
-    CanIdSolarPower = 0x026,
-    CanIdSolarTemp = 0x022,
+    CanIdSolarPower = 0x726,
+    CanIdSolarTemp = 0x724,
 
     CanIdMotor1 = 0x142,
     CanIdMotor2 = 0x143,
@@ -17,8 +17,8 @@ pub enum CanIds {
     CanIdApmuTemp = 0x700,
     CanIdMpmuTemp = 0x702,
 
-    CanIdPCSTemp = 0x724,
-    CanIdLPMainPower = 0x726,
+    CanIdPCSTemp = 0x704,
+    CanIdLPMainPower = 0x708,
 
 
 

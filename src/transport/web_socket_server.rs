@@ -35,6 +35,7 @@ async fn handle_client(path: String, stream: WebSocketStream<TcpStream>, metric_
                         let json = serde_json::to_string(&msg).unwrap();
                         if let Err(err) = out.send(Message::Text(json)).await {
                             error!("Error when sending {}", err);
+                            break;
                         }
                     }
                 },

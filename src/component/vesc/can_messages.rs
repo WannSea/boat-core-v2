@@ -46,7 +46,6 @@ pub trait CanMessage: Sized + Debug {
     async fn parse_and_send(data: &[u8], metric_sender: &MetricSender) {
         let metrics = Self::from_can_data(data);
         let _ = metrics.send_metrics(metric_sender).await;
-
     }
 }
 

@@ -23,6 +23,7 @@ impl VescReadThread {
 
     async fn start_receiving(&self) {
         let mut receiver = self.can_receiver.subscribe();
+
         loop {
             let frame = receiver.recv().await.unwrap();
 

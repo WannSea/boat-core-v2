@@ -51,21 +51,22 @@ impl<T> MetricQueue<T> {
     }
 
     pub async fn push(&self, e: T) {
-        self.sender.send(e).unwrap();
-        // let mut stats = self.stats.write().unwrap();
-        // stats.len += 1;
-        // stats.metrics_in += 1;
-        //self.calc_stats(stats);
+        self.sender.clone().send(e).unwrap();
+        let mut stats = self.stats.write().unwrap();
+        stats.len += 1;
+        stats.metrics_in += 1;
+        self.calc_stats(stats);
     }
 
     pub async fn pop(&self) -> T {
-        let mut receiver = self.receiver.lock().await;
-        let result = receiver.recv().await.unwrap();
+        let receiver = self.receiver.clone();
 
-        // let mut stats = self.stats.write().unwrap();
-        // stats.len -= 1;
-        // stats.metrics_out += 1;
-        // self.calc_stats(stats);
+        let result = receiver.lock().await.recv().await.unwrap();
+
+        let mut stats = self.stats.write().unwrap();
+        stats.len -= 1;
+        stats.metrics_out += 1;
+        self.calc_stats(stats);
         return result;
     }
 }

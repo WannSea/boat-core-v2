@@ -170,7 +170,9 @@ impl BmsReadThread {
             self.metric_sender.send_now(MessageId::BatIdVmax, Value::Uint32(((data[7] >> 4) as u8).into())).unwrap();
         }
         else if requested_function == BmsFunction::GlobalStatus5 as u32 {
-            self.metric_sender.send_now(MessageId::GlobalBatCurrent, Value::Sint32(i16::from_be_bytes(data[0 .. 2].try_into().unwrap()).into())).unwrap();
+            let bat_current: i16 = i16::from_be_bytes(data[0 .. 2].try_into().unwrap()).into();
+
+            self.metric_sender.send_now(MessageId::GlobalBatCurrent, Value::Float(bat_current as f32 * 0.1f32)).unwrap();
             self.metric_sender.send_now(MessageId::GlobalCellVMin, Value::Sint32(i16::from_be_bytes(data[2 .. 4].try_into().unwrap()).into())).unwrap();
             self.metric_sender.send_now(MessageId::GlobalCellVMax, Value::Sint32(i16::from_be_bytes(data[4 .. 6].try_into().unwrap()).into())).unwrap();
 

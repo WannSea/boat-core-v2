@@ -6,9 +6,12 @@ metrics = true
 enabled = true
 interface = "can0"
 
+[motor_power]
+enabled = true
+
 [vesc]
 enabled = true
-id = 22
+id = 254
 # Transport protocols
 [ws-server]
 enabled = true
@@ -35,8 +38,8 @@ processes = ["boat-core-v2", "firefox", "grafana"] # Dont know about the perform
 #processes = []
 
 [bms]
-enabled = false
-request_interval = 50
+enabled = true
+request_interval = 500
 search_interval = 10000
 
 [pmu]
