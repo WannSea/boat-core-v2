@@ -47,18 +47,18 @@ async fn handle_client(path: String, stream: WebSocketStream<TcpStream>, metric_
     });
 
     // Ws to message bus
-    let metric_sender = metric_bus.clone();
-    tokio::spawn(async move {
-        loop {
-            if let Some(Ok(msg)) = inc.next().await {
-                if let Ok(text) = msg.to_text() {
-                   if let Ok(bcm) = serde_json::from_str::<BoatCoreMessage>(text) {
-                        metric_sender.send(bcm).unwrap();
-                   }
-                }
-            }
-        }
-    });
+//  let metric_sender = metric_bus.clone();
+//  tokio::spawn(async move {
+//      loop {
+//          if let Some(Ok(msg)) = inc.next().await {
+//              if let Ok(text) = msg.to_text() {
+//                 if let Ok(bcm) = serde_json::from_str::<BoatCoreMessage>(text) {
+//                      metric_sender.send(bcm).unwrap();
+//                 }
+//              }
+//          }
+//      }
+//  });
 }
 
 impl WebSocketServer {
