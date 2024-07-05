@@ -29,12 +29,12 @@ impl MotorPower {
 
     async fn start_receiving(sender: MetricSender) {
         let mut receiver = sender.subscribe();
+        let mut last_current: f32 = 0.0f32;
+        let mut last_voltage: f32 = 0.0f32;
 
         loop {
             let metric = receiver.recv().await.unwrap();
 
-            let mut last_current: f32 = 0.0f32;
-            let mut last_voltage: f32 = 0.0f32;
 
             if metric.id() == MessageId::EscTotalInCurrent {
                 match metric.value.unwrap() {
